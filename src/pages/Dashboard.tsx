@@ -1,4 +1,3 @@
-```tsx
 import { useState } from "react";
 import ClassSelect from "@/components/ClassSelect";
 
@@ -37,4 +36,3 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
-```
