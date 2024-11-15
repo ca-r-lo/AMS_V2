@@ -14,46 +14,52 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   ];
 
   return (
-    <div className="min-h-screen flex">
-      {/* Sidebar */}
-      <div className="w-64 bg-[#1A1F2C] text-white">
-        <div className="p-4">
-          <img src="/logo.png" alt="School Logo" className="w-24 h-24 mx-auto mb-6" />
-        </div>
-        <nav className="space-y-1">
-          {navItems.map((item) => {
-            const Icon = item.icon;
-            const isActive = location.pathname === item.path;
-            return (
-              <Link
-                key={item.path}
-                to={item.path}
-                className={`flex items-center px-6 py-3 text-sm ${
-                  isActive
-                    ? "bg-white/10 border-l-4 border-white"
-                    : "hover:bg-white/5"
-                }`}
+    <div className="min-h-screen flex flex-col">
+      {/* Top Navigation */}
+      <nav className="bg-[#1A1F2C] text-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            <div className="flex items-center">
+              <img src="/logo.png" alt="School Logo" className="h-8 w-8" />
+              <div className="hidden md:block ml-10">
+                <div className="flex items-baseline space-x-4">
+                  {navItems.map((item) => {
+                    const Icon = item.icon;
+                    const isActive = location.pathname === item.path;
+                    return (
+                      <Link
+                        key={item.path}
+                        to={item.path}
+                        className={`flex items-center px-3 py-2 rounded-md text-sm font-medium ${
+                          isActive
+                            ? "bg-white/10 text-white"
+                            : "text-gray-300 hover:bg-white/5 hover:text-white"
+                        }`}
+                      >
+                        <Icon className="w-4 h-4 mr-2" />
+                        {item.label}
+                      </Link>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+            <div className="flex items-center">
+              <span className="text-sm text-gray-400 mr-4">{currentTime}</span>
+              <button
+                onClick={() => console.log("Logout clicked")}
+                className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition-colors"
               >
-                <Icon className="w-5 h-5 mr-3" />
-                {item.label}
-              </Link>
-            );
-          })}
-        </nav>
-        <div className="absolute bottom-0 w-64 p-4 bg-[#1A1F2C]">
-          <div className="text-sm text-gray-400">{currentTime}</div>
-          <button
-            onClick={() => console.log("Logout clicked")}
-            className="w-full mt-2 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition-colors"
-          >
-            Logout
-          </button>
+                Logout
+              </button>
+            </div>
+          </div>
         </div>
-      </div>
+      </nav>
 
       {/* Main Content */}
       <div className="flex-1 bg-gray-50">
-        <div className="p-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {children}
         </div>
       </div>
