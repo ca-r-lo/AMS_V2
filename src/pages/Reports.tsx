@@ -1,44 +1,126 @@
 import { useState } from "react";
 import ClassSelect from "@/components/ClassSelect";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Calendar } from "@/components/ui/calendar";
+import { format } from "date-fns";
+import { Download, FileSpreadsheet, Printer } from "lucide-react";
 
 const Reports = () => {
-  const [selectedSection, setSelectedSection] = useState("CYGNUS");
-  const [selectedDate, setSelectedDate] = useState("");
+  const [selectedSection, setSelectedSection] = useState("All");
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+
+  // Mock data for demonstration
+  const attendanceData = [
+    { id: 1, date: "2024-03-01", present: 25, absent: 5, late: 2, total: 32 },
+    { id: 2, date: "2024-03-02", present: 28, absent: 3, late: 1, total: 32 },
+    { id: 3, date: "2024-03-03", present: 30, absent: 1, late: 1, total: 32 },
+  ];
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold">School Year 2024-2025 Records</h1>
+    <div className="space-y-6 p-6 bg-gray-50 min-h-screen">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Attendance Reports</h1>
+          <p className="text-gray-500 mt-1">Generate and download attendance reports</p>
+        </div>
         <ClassSelect value={selectedSection} onChange={setSelectedSection} />
       </div>
-      
-      <div className="grid grid-cols-2 gap-6">
-        <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-lg font-semibold mb-4">Select Month</h2>
-          <div className="space-y-4">
-            <input
-              type="date"
-              value={selectedDate}
-              onChange={(e) => setSelectedDate(e.target.value)}
-              className="w-full border rounded p-2"
-            />
-          </div>
+
+      <div className="grid md:grid-cols-[300px,1fr] gap-6">
+        <div className="space-y-6">
+          <Card className="p-4">
+            <CardHeader>
+              <CardTitle className="text-lg">Select Date Range</CardTitle>
+            </CardHeader>
+            <CardContent className="p-0">
+              <Calendar
+                mode="single"
+                selected={selectedDate}
+                onSelect={(date) => date && setSelectedDate(date)}
+                className="rounded-md border"
+              />
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Export Options</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <Button className="w-full flex items-center gap-2" variant="outline">
+                <FileSpreadsheet className="w-4 h-4" />
+                Export to Excel
+              </Button>
+              <Button className="w-full flex items-center gap-2" variant="outline">
+                <Download className="w-4 h-4" />
+                Download PDF
+              </Button>
+              <Button className="w-full flex items-center gap-2" variant="outline">
+                <Printer className="w-4 h-4" />
+                Print Report
+              </Button>
+            </CardContent>
+          </Card>
         </div>
-        
-        <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-lg font-semibold mb-4">Settings</h2>
-          <div className="space-y-4">
-            <p>Selected Date: {selectedDate || "None"}</p>
-            <Button className="bg-green-500 hover:bg-green-600">
-              Export
-            </Button>
-          </div>
-        </div>
-      </div>
-      
-      <div className="bg-white rounded-lg shadow">
-        {/* Similar table structure as Dashboard */}
+
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle>
+              Attendance Summary for {format(selectedDate, "MMMM yyyy")}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="rounded-md border">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Date</TableHead>
+                    <TableHead className="text-right">Present</TableHead>
+                    <TableHead className="text-right">Absent</TableHead>
+                    <TableHead className="text-right">Late</TableHead>
+                    <TableHead className="text-right">Total</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {attendanceData.map((row) => (
+                    <TableRow key={row.id}>
+                      <TableCell>{row.date}</TableCell>
+                      <TableCell className="text-right text-green-600">{row.present}</TableCell>
+                      <TableCell className="text-right text-red-600">{row.absent}</TableCell>
+                      <TableCell className="text-right text-yellow-600">{row.late}</TableCell>
+                      <TableCell className="text-right font-medium">{row.total}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+
+            <div className="mt-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <Card>
+                  <CardContent className="pt-6">
+                    <div className="text-2xl font-bold text-green-600">92%</div>
+                    <p className="text-sm text-gray-500">Average Attendance Rate</p>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent className="pt-6">
+                    <div className="text-2xl font-bold text-blue-600">28</div>
+                    <p className="text-sm text-gray-500">Average Daily Attendance</p>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent className="pt-6">
+                    <div className="text-2xl font-bold text-purple-600">4</div>
+                    <p className="text-sm text-gray-500">Chronic Absences</p>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
