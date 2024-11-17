@@ -5,16 +5,32 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Plus, Edit, Trash, Users, School, Clock, CalendarCheck } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { Badge } from "@/components/ui/badge";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
+
+const ITEMS_PER_PAGE = 25;
 
 const Index = () => {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState<'sections' | 'students'>('sections');
+  const [currentPage, setCurrentPage] = useState(1);
 
-  const sections = [
-    { id: 1, name: "CYGNUS", grade: "11", strand: "STEM", totalStudents: 32, present: 28, absent: 4 },
-    { id: 2, name: "EIM FARADS", grade: "11", strand: "ABM", totalStudents: 30, present: 25, absent: 5 },
-    { id: 3, name: "ARTS AND DESIGN", grade: "12", strand: "HUMSS", totalStudents: 28, present: 26, absent: 2 },
-  ];
+  // Generate more mock data for demonstration
+  const sections = Array.from({ length: 50 }, (_, index) => ({
+    id: index + 1,
+    name: `Section ${index + 1}`,
+    grade: Math.random() > 0.5 ? "11" : "12",
+    strand: ["STEM", "ABM", "HUMSS"][index % 3],
+    totalStudents: 25 + Math.floor(Math.random() * 10),
+    present: 20 + Math.floor(Math.random() * 5),
+    absent: Math.floor(Math.random() * 5),
+  }));
 
   const recentActivity = [
     { id: 1, time: "08:30 AM", action: "Time In", student: "John Doe", section: "CYGNUS" },
@@ -35,6 +51,12 @@ const Index = () => {
       description: `${action} action triggered for ID ${id}`,
     });
   };
+
+  // Calculate pagination
+  const totalPages = Math.ceil(sections.length / ITEMS_PER_PAGE);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const endIndex = startIndex + ITEMS_PER_PAGE;
+  const currentSections = sections.slice(startIndex, endIndex);
 
   return (
     <div className="space-y-6">
@@ -100,7 +122,7 @@ const Index = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {sections.map((section) => (
+              {currentSections.map((section) => (
                 <TableRow key={section.id}>
                   <TableCell className="font-medium">{section.name}</TableCell>
                   <TableCell>{section.grade}</TableCell>
@@ -136,6 +158,47 @@ const Index = () => {
               ))}
             </TableBody>
           </Table>
+
+          <div className="mt-4">
+            <Pagination>
+              <PaginationContent>
+                <PaginationItem>
+                  <PaginationPrevious 
+                    href="#"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      if (currentPage > 1) setCurrentPage(currentPage - 1);
+                    }}
+                  />
+                </PaginationItem>
+                
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                  <PaginationItem key={page}>
+                    <PaginationLink
+                      href="#"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setCurrentPage(page);
+                      }}
+                      isActive={currentPage === page}
+                    >
+                      {page}
+                    </PaginationLink>
+                  </PaginationItem>
+                ))}
+                
+                <PaginationItem>
+                  <PaginationNext
+                    href="#"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      if (currentPage < totalPages) setCurrentPage(currentPage + 1);
+                    }}
+                  />
+                </PaginationItem>
+              </PaginationContent>
+            </Pagination>
+          </div>
         </CardContent>
       </Card>
 

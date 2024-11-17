@@ -3,16 +3,30 @@ import ClassSelect from "@/components/ClassSelect";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
+
+const ITEMS_PER_PAGE = 25;
 
 const Students = () => {
   const [selectedSection, setSelectedSection] = useState("All");
+  const [currentPage, setCurrentPage] = useState(1);
 
   // Mock data - in a real app, this would come from an API
-  const students = [
-    { id: 1, name: "John Doe", section: "CYGNUS", status: "in_school", timeIn: "7:30 AM", timeOut: null },
-    { id: 2, name: "Jane Smith", section: "EIM FARADS", status: "left_school", timeIn: "7:25 AM", timeOut: "3:30 PM" },
-    { id: 3, name: "Mike Johnson", section: "ARTS AND DESIGN", status: "absent", timeIn: null, timeOut: null },
-  ];
+  const students = Array.from({ length: 100 }, (_, index) => ({
+    id: index + 1,
+    name: `Student ${index + 1}`,
+    section: ["CYGNUS", "EIM FARADS", "ARTS AND DESIGN"][index % 3],
+    status: ["in_school", "left_school", "absent"][Math.floor(Math.random() * 3)],
+    timeIn: index % 3 === 2 ? null : `7:${(25 + Math.floor(Math.random() * 30)).toString().padStart(2, '0')} AM`,
+    timeOut: index % 3 === 1 ? "3:30 PM" : null,
+  }));
 
   const getStatusBadge = (status: string) => {
     const statusConfig = {
@@ -28,6 +42,12 @@ const Students = () => {
   const filteredStudents = selectedSection === "All" 
     ? students 
     : students.filter(student => student.section === selectedSection);
+
+  // Calculate pagination
+  const totalPages = Math.ceil(filteredStudents.length / ITEMS_PER_PAGE);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const endIndex = startIndex + ITEMS_PER_PAGE;
+  const currentStudents = filteredStudents.slice(startIndex, endIndex);
 
   const stats = {
     total: students.length,
@@ -97,7 +117,7 @@ const Students = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredStudents.map((student) => (
+              {currentStudents.map((student) => (
                 <TableRow key={student.id}>
                   <TableCell className="font-medium">{student.name}</TableCell>
                   <TableCell>{student.section}</TableCell>
@@ -108,6 +128,47 @@ const Students = () => {
               ))}
             </TableBody>
           </Table>
+
+          <div className="mt-4">
+            <Pagination>
+              <PaginationContent>
+                <PaginationItem>
+                  <PaginationPrevious 
+                    href="#"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      if (currentPage > 1) setCurrentPage(currentPage - 1);
+                    }}
+                  />
+                </PaginationItem>
+                
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                  <PaginationItem key={page}>
+                    <PaginationLink
+                      href="#"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setCurrentPage(page);
+                      }}
+                      isActive={currentPage === page}
+                    >
+                      {page}
+                    </PaginationLink>
+                  </PaginationItem>
+                ))}
+                
+                <PaginationItem>
+                  <PaginationNext
+                    href="#"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      if (currentPage < totalPages) setCurrentPage(currentPage + 1);
+                    }}
+                  />
+                </PaginationItem>
+              </PaginationContent>
+            </Pagination>
+          </div>
         </CardContent>
       </Card>
     </div>
