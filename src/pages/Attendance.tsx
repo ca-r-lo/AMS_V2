@@ -5,18 +5,29 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
+
+const ITEMS_PER_PAGE = 25;
 
 const Attendance = () => {
   const [selectedSection, setSelectedSection] = useState("All");
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [currentPage, setCurrentPage] = useState(1);
 
-  // Mock data for demonstration
-  const students = [
-    { id: 1, name: "John Doe", status: "present", time: "8:30 AM" },
-    { id: 2, name: "Jane Smith", status: "absent", time: "-" },
-    { id: 3, name: "Mike Johnson", status: "late", time: "9:15 AM" },
-    { id: 4, name: "Sarah Williams", status: "present", time: "8:25 AM" },
-  ];
+  // Mock data for demonstration - in a real app, this would come from an API
+  const students = Array.from({ length: 100 }, (_, index) => ({
+    id: index + 1,
+    name: `Student ${index + 1}`,
+    status: ["present", "absent", "late"][Math.floor(Math.random() * 3)],
+    time: index % 3 === 0 ? "-" : `${8 + Math.floor(Math.random() * 2)}:${Math.floor(Math.random() * 60).toString().padStart(2, '0')} AM`,
+  }));
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -29,6 +40,21 @@ const Attendance = () => {
       default:
         return "bg-gray-100 text-gray-800";
     }
+  };
+
+  // Calculate pagination
+  const totalPages = Math.ceil(students.length / ITEMS_PER_PAGE);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const endIndex = startIndex + ITEMS_PER_PAGE;
+  const currentStudents = students.slice(startIndex, endIndex);
+
+  // Generate page numbers for pagination
+  const getPageNumbers = () => {
+    const pages = [];
+    for (let i = 1; i <= totalPages; i++) {
+      pages.push(i);
+    }
+    return pages;
   };
 
   return (
@@ -74,7 +100,7 @@ const Attendance = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {students.map((student) => (
+                  {currentStudents.map((student) => (
                     <TableRow key={student.id}>
                       <TableCell className="font-medium">{student.name}</TableCell>
                       <TableCell>
@@ -92,6 +118,47 @@ const Attendance = () => {
                   ))}
                 </TableBody>
               </Table>
+            </div>
+
+            <div className="mt-4">
+              <Pagination>
+                <PaginationContent>
+                  <PaginationItem>
+                    <PaginationPrevious 
+                      href="#"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        if (currentPage > 1) setCurrentPage(currentPage - 1);
+                      }}
+                    />
+                  </PaginationItem>
+                  
+                  {getPageNumbers().map((page) => (
+                    <PaginationItem key={page}>
+                      <PaginationLink
+                        href="#"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          setCurrentPage(page);
+                        }}
+                        isActive={currentPage === page}
+                      >
+                        {page}
+                      </PaginationLink>
+                    </PaginationItem>
+                  ))}
+                  
+                  <PaginationItem>
+                    <PaginationNext
+                      href="#"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        if (currentPage < totalPages) setCurrentPage(currentPage + 1);
+                      }}
+                    />
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
             </div>
           </CardContent>
         </Card>
