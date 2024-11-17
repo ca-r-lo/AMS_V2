@@ -50,74 +50,96 @@ const Reports = () => {
         <ClassSelect value={selectedSection} onChange={setSelectedSection} />
       </div>
 
-      <div className="grid md:grid-cols-[300px,1fr] gap-6">
-        <div className="space-y-6">
-          <Card className="p-4">
-            <CardHeader>
-              <CardTitle className="text-lg">Select Date Range</CardTitle>
-            </CardHeader>
-            <CardContent className="p-0">
-              <Calendar
-                mode="single"
-                selected={selectedDate}
-                onSelect={(date) => date && setSelectedDate(date)}
-                className="rounded-md border"
-              />
-            </CardContent>
-          </Card>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Calendar Card */}
+        <Card className="p-4">
+          <CardHeader>
+            <CardTitle className="text-lg">Select Date Range</CardTitle>
+          </CardHeader>
+          <CardContent className="p-0">
+            <Calendar
+              mode="single"
+              selected={selectedDate}
+              onSelect={(date) => date && setSelectedDate(date)}
+              className="rounded-md border"
+            />
+          </CardContent>
+        </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Export Options</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Select Month
-                </label>
-                <Select value={selectedMonth} onValueChange={setSelectedMonth}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select month" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {months.map((month) => (
-                      <SelectItem key={month} value={month}>
-                        {month}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              <Button 
-                className="w-full flex items-center gap-2" 
-                variant="outline"
-                onClick={() => handleExport('excel')}
-              >
-                <FileSpreadsheet className="w-4 h-4" />
-                Export to Excel
-              </Button>
-              <Button 
-                className="w-full flex items-center gap-2" 
-                variant="outline"
-                onClick={() => handleExport('pdf')}
-              >
-                <Download className="w-4 h-4" />
-                Download PDF
-              </Button>
-              <Button 
-                className="w-full flex items-center gap-2" 
-                variant="outline"
-                onClick={() => handleExport('print')}
-              >
-                <Printer className="w-4 h-4" />
-                Print Report
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
-
+        {/* Export Options Card */}
         <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Export Options</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Select Month
+              </label>
+              <Select value={selectedMonth} onValueChange={setSelectedMonth}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select month" />
+                </SelectTrigger>
+                <SelectContent>
+                  {months.map((month) => (
+                    <SelectItem key={month} value={month}>
+                      {month}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <Button 
+              className="w-full flex items-center gap-2" 
+              variant="outline"
+              onClick={() => handleExport('excel')}
+            >
+              <FileSpreadsheet className="w-4 h-4" />
+              Export to Excel
+            </Button>
+            <Button 
+              className="w-full flex items-center gap-2" 
+              variant="outline"
+              onClick={() => handleExport('pdf')}
+            >
+              <Download className="w-4 h-4" />
+              Download PDF
+            </Button>
+            <Button 
+              className="w-full flex items-center gap-2" 
+              variant="outline"
+              onClick={() => handleExport('print')}
+            >
+              <Printer className="w-4 h-4" />
+              Print Report
+            </Button>
+          </CardContent>
+        </Card>
+
+        {/* Summary Stats Card */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Quick Stats</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="p-4 bg-green-50 rounded-lg">
+              <div className="text-2xl font-bold text-green-600">92%</div>
+              <p className="text-sm text-gray-500">Average Attendance Rate</p>
+            </div>
+            <div className="p-4 bg-blue-50 rounded-lg">
+              <div className="text-2xl font-bold text-blue-600">28</div>
+              <p className="text-sm text-gray-500">Average Daily Attendance</p>
+            </div>
+            <div className="p-4 bg-purple-50 rounded-lg">
+              <div className="text-2xl font-bold text-purple-600">4</div>
+              <p className="text-sm text-gray-500">Chronic Absences</p>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Table Card - Full Width */}
+        <Card className="lg:col-span-3">
           <CardHeader className="pb-3">
             <CardTitle>
               Attendance Summary for {format(selectedDate, "MMMM yyyy")}
@@ -147,29 +169,6 @@ const Reports = () => {
                   ))}
                 </TableBody>
               </Table>
-            </div>
-
-            <div className="mt-6">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <Card>
-                  <CardContent className="pt-6">
-                    <div className="text-2xl font-bold text-green-600">92%</div>
-                    <p className="text-sm text-gray-500">Average Attendance Rate</p>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardContent className="pt-6">
-                    <div className="text-2xl font-bold text-blue-600">28</div>
-                    <p className="text-sm text-gray-500">Average Daily Attendance</p>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardContent className="pt-6">
-                    <div className="text-2xl font-bold text-purple-600">4</div>
-                    <p className="text-sm text-gray-500">Chronic Absences</p>
-                  </CardContent>
-                </Card>
-              </div>
             </div>
           </CardContent>
         </Card>

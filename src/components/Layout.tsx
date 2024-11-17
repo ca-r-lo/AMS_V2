@@ -1,5 +1,6 @@
 import { Home, LayoutDashboard, Users, ClipboardCheck, FileBarChart } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
+import Footer from "./Footer";
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
@@ -63,6 +64,9 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
           {children}
         </div>
       </div>
+
+      {/* Footer */}
+      <Footer />
     </div>
   );
 };
