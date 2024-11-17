@@ -6,10 +6,25 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import { Download, FileSpreadsheet, Printer } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useToast } from "@/components/ui/use-toast";
 
 const Reports = () => {
+  const { toast } = useToast();
   const [selectedSection, setSelectedSection] = useState("All");
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [selectedMonth, setSelectedMonth] = useState(format(new Date(), "MMMM"));
+
+  const months = [
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December"
+  ];
 
   // Mock data for demonstration
   const attendanceData = [
@@ -17,6 +32,13 @@ const Reports = () => {
     { id: 2, date: "2024-03-02", present: 28, absent: 3, late: 1, total: 32 },
     { id: 3, date: "2024-03-03", present: 30, absent: 1, late: 1, total: 32 },
   ];
+
+  const handleExport = (type: 'excel' | 'pdf' | 'print') => {
+    toast({
+      title: `Exporting ${selectedMonth} Report`,
+      description: `Generating ${type.toUpperCase()} report for ${selectedMonth}...`,
+    });
+  };
 
   return (
     <div className="space-y-6 p-6 bg-gray-50 min-h-screen">
@@ -49,15 +71,45 @@ const Reports = () => {
               <CardTitle className="text-lg">Export Options</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <Button className="w-full flex items-center gap-2" variant="outline">
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Select Month
+                </label>
+                <Select value={selectedMonth} onValueChange={setSelectedMonth}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select month" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {months.map((month) => (
+                      <SelectItem key={month} value={month}>
+                        {month}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <Button 
+                className="w-full flex items-center gap-2" 
+                variant="outline"
+                onClick={() => handleExport('excel')}
+              >
                 <FileSpreadsheet className="w-4 h-4" />
                 Export to Excel
               </Button>
-              <Button className="w-full flex items-center gap-2" variant="outline">
+              <Button 
+                className="w-full flex items-center gap-2" 
+                variant="outline"
+                onClick={() => handleExport('pdf')}
+              >
                 <Download className="w-4 h-4" />
                 Download PDF
               </Button>
-              <Button className="w-full flex items-center gap-2" variant="outline">
+              <Button 
+                className="w-full flex items-center gap-2" 
+                variant="outline"
+                onClick={() => handleExport('print')}
+              >
                 <Printer className="w-4 h-4" />
                 Print Report
               </Button>
