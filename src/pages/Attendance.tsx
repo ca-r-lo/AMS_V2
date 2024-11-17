@@ -4,6 +4,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Calendar } from "@/components/ui/calendar";
+import SearchBar from "@/components/SearchBar";
 import { format } from "date-fns";
 import {
   Pagination,
@@ -20,6 +21,7 @@ const Attendance = () => {
   const [selectedSection, setSelectedSection] = useState("All");
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [currentPage, setCurrentPage] = useState(1);
+  const [filteredStudents, setFilteredStudents] = useState<any[]>([]);
 
   // Mock data for demonstration - in a real app, this would come from an API
   const students = Array.from({ length: 100 }, (_, index) => ({
@@ -42,20 +44,16 @@ const Attendance = () => {
     }
   };
 
+  const handleSearch = (filtered: any[]) => {
+    setFilteredStudents(filtered);
+    setCurrentPage(1);
+  };
+
   // Calculate pagination
-  const totalPages = Math.ceil(students.length / ITEMS_PER_PAGE);
+  const totalPages = Math.ceil(filteredStudents.length / ITEMS_PER_PAGE);
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const endIndex = startIndex + ITEMS_PER_PAGE;
-  const currentStudents = students.slice(startIndex, endIndex);
-
-  // Generate page numbers for pagination
-  const getPageNumbers = () => {
-    const pages = [];
-    for (let i = 1; i <= totalPages; i++) {
-      pages.push(i);
-    }
-    return pages;
-  };
+  const currentStudents = filteredStudents.slice(startIndex, endIndex);
 
   return (
     <div className="space-y-6 p-6 bg-gray-50 min-h-screen">
@@ -84,9 +82,17 @@ const Attendance = () => {
 
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle>
-              Attendance for {format(selectedDate, "MMMM d, yyyy")}
-            </CardTitle>
+            <div className="flex justify-between items-center">
+              <CardTitle>
+                Attendance for {format(selectedDate, "MMMM d, yyyy")}
+              </CardTitle>
+              <SearchBar
+                data={students}
+                onSearch={handleSearch}
+                searchFields={["name"]}
+                placeholder="Search students..."
+              />
+            </div>
           </CardHeader>
           <CardContent>
             <div className="rounded-md border">
@@ -133,7 +139,7 @@ const Attendance = () => {
                     />
                   </PaginationItem>
                   
-                  {getPageNumbers().map((page) => (
+                  {Array.from({ length: totalPages }, (_, index) => index + 1).map((page) => (
                     <PaginationItem key={page}>
                       <PaginationLink
                         href="#"

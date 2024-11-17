@@ -3,6 +3,7 @@ import ClassSelect from "@/components/ClassSelect";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import SearchBar from "@/components/SearchBar";
 import {
   Pagination,
   PaginationContent,
@@ -17,6 +18,7 @@ const ITEMS_PER_PAGE = 25;
 const Students = () => {
   const [selectedSection, setSelectedSection] = useState("All");
   const [currentPage, setCurrentPage] = useState(1);
+  const [filteredStudents, setFilteredStudents] = useState<any[]>([]);
 
   // Mock data - in a real app, this would come from an API
   const students = Array.from({ length: 100 }, (_, index) => ({
@@ -39,15 +41,20 @@ const Students = () => {
     return <Badge className={config.class}>{config.label}</Badge>;
   };
 
-  const filteredStudents = selectedSection === "All" 
-    ? students 
-    : students.filter(student => student.section === selectedSection);
+  const handleSearch = (filtered: any[]) => {
+    setFilteredStudents(filtered);
+    setCurrentPage(1);
+  };
+
+  const displayedStudents = selectedSection === "All" 
+    ? filteredStudents
+    : filteredStudents.filter(student => student.section === selectedSection);
 
   // Calculate pagination
-  const totalPages = Math.ceil(filteredStudents.length / ITEMS_PER_PAGE);
+  const totalPages = Math.ceil(displayedStudents.length / ITEMS_PER_PAGE);
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const endIndex = startIndex + ITEMS_PER_PAGE;
-  const currentStudents = filteredStudents.slice(startIndex, endIndex);
+  const currentStudents = displayedStudents.slice(startIndex, endIndex);
 
   const stats = {
     total: students.length,
@@ -99,6 +106,15 @@ const Students = () => {
             <div className="text-2xl font-bold text-red-600">{stats.absent}</div>
           </CardContent>
         </Card>
+      </div>
+
+      <div className="flex justify-between items-center mb-4">
+        <SearchBar
+          data={students}
+          onSearch={handleSearch}
+          searchFields={["name", "section"]}
+          placeholder="Search students..."
+        />
       </div>
 
       <Card>
