@@ -1,9 +1,19 @@
 import { Home, LayoutDashboard, Users, ClipboardCheck, FileBarChart } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
+import { useEffect, useState } from "react";
 import Footer from "./Footer";
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
+  const [currentTime, setCurrentTime] = useState(new Date());
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, []);
 
   const navItems = [
     { icon: Home, label: "Home", path: "/" },
@@ -15,7 +25,6 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <div className="min-h-screen flex flex-col">
-      {/* Modern Minimal Navigation */}
       <nav className="bg-white border-b border-gray-100 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex items-center justify-between h-14">
@@ -42,24 +51,42 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
                 })}
               </div>
             </div>
-            <button
-              onClick={() => console.log("Logout clicked")}
-              className="px-3 py-1.5 bg-red-500/10 text-red-600 text-sm font-medium rounded-md hover:bg-red-500/20 transition-colors"
-            >
-              Logout
-            </button>
+            <div className="flex items-center gap-4">
+              <div className="text-sm font-medium text-gray-600">
+                <span className="mr-2">
+                  {currentTime.toLocaleDateString('en-US', { 
+                    weekday: 'short',
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric'
+                  })}
+                </span>
+                <span>
+                  {currentTime.toLocaleTimeString('en-US', {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit',
+                    hour12: true
+                  })}
+                </span>
+              </div>
+              <button
+                onClick={() => console.log("Logout clicked")}
+                className="px-3 py-1.5 bg-red-500/10 text-red-600 text-sm font-medium rounded-md hover:bg-red-500/20 transition-colors"
+              >
+                Logout
+              </button>
+            </div>
           </div>
         </div>
       </nav>
 
-      {/* Main Content */}
       <div className="flex-1 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {children}
         </div>
       </div>
 
-      {/* Footer */}
       <Footer />
     </div>
   );
