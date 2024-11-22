@@ -4,7 +4,6 @@ import Footer from "./Footer";
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
-  const currentTime = new Date().toLocaleString();
 
   const navItems = [
     { icon: Home, label: "Home", path: "/" },
@@ -16,44 +15,39 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <div className="min-h-screen flex flex-col">
-      {/* Top Navigation */}
-      <nav className="bg-[#1A1F2C] text-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center">
-              <img src="/logo.png" alt="School Logo" className="h-8 w-8" />
-              <div className="hidden md:block ml-10">
-                <div className="flex items-baseline space-x-4">
-                  {navItems.map((item) => {
-                    const Icon = item.icon;
-                    const isActive = location.pathname === item.path;
-                    return (
-                      <Link
-                        key={item.path}
-                        to={item.path}
-                        className={`flex items-center px-3 py-2 rounded-md text-sm font-medium ${
-                          isActive
-                            ? "bg-white/10 text-white"
-                            : "text-gray-300 hover:bg-white/5 hover:text-white"
-                        }`}
-                      >
-                        <Icon className="w-4 h-4 mr-2" />
-                        {item.label}
-                      </Link>
-                    );
-                  })}
-                </div>
+      {/* Modern Minimal Navigation */}
+      <nav className="bg-white border-b border-gray-100 sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="flex items-center justify-between h-14">
+            <div className="flex items-center gap-8">
+              <img src="/logo.png" alt="School Logo" className="h-6 w-6" />
+              <div className="hidden md:flex items-center gap-1">
+                {navItems.map((item) => {
+                  const Icon = item.icon;
+                  const isActive = location.pathname === item.path;
+                  return (
+                    <Link
+                      key={item.path}
+                      to={item.path}
+                      className={`flex items-center px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                        isActive
+                          ? "bg-primary/10 text-primary"
+                          : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                      }`}
+                    >
+                      <Icon className="w-4 h-4 mr-1.5" />
+                      {item.label}
+                    </Link>
+                  );
+                })}
               </div>
             </div>
-            <div className="flex items-center">
-              <span className="text-sm text-gray-400 mr-4">{currentTime}</span>
-              <button
-                onClick={() => console.log("Logout clicked")}
-                className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition-colors"
-              >
-                Logout
-              </button>
-            </div>
+            <button
+              onClick={() => console.log("Logout clicked")}
+              className="px-3 py-1.5 bg-red-500/10 text-red-600 text-sm font-medium rounded-md hover:bg-red-500/20 transition-colors"
+            >
+              Logout
+            </button>
           </div>
         </div>
       </nav>
