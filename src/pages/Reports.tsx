@@ -20,23 +20,32 @@ const Reports = () => {
   const [selectedSection, setSelectedSection] = useState("All");
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [selectedMonth, setSelectedMonth] = useState(format(new Date(), "MMMM"));
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear().toString());
 
   const months = [
     "January", "February", "March", "April", "May", "June",
     "July", "August", "September", "October", "November", "December"
   ];
 
-  // Mock data for demonstration
+  const years = Array.from(
+    { length: 5 },
+    (_, i) => (new Date().getFullYear() - 2 + i).toString()
+  );
+
+  // Mock data with proper status handling
   const attendanceData = [
     { id: 1, date: "2024-03-01", present: 25, absent: 5, late: 2, total: 32 },
     { id: 2, date: "2024-03-02", present: 28, absent: 3, late: 1, total: 32 },
     { id: 3, date: "2024-03-03", present: 30, absent: 1, late: 1, total: 32 },
-  ];
+  ].map(data => ({
+    ...data,
+    status: data.present > 0 ? "complete" : "pending"
+  }));
 
   const handleExport = (type: 'excel' | 'pdf' | 'print') => {
     toast({
-      title: `Exporting ${selectedMonth} Report`,
-      description: `Generating ${type.toUpperCase()} report for ${selectedMonth}...`,
+      title: `Exporting ${selectedMonth} ${selectedYear} Report`,
+      description: `Generating ${type.toUpperCase()} report for ${selectedMonth} ${selectedYear}...`,
     });
   };
 
@@ -72,22 +81,42 @@ const Reports = () => {
             <CardTitle className="text-lg">Export Options</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Select Month
-              </label>
-              <Select value={selectedMonth} onValueChange={setSelectedMonth}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select month" />
-                </SelectTrigger>
-                <SelectContent>
-                  {months.map((month) => (
-                    <SelectItem key={month} value={month}>
-                      {month}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Select Month
+                </label>
+                <Select value={selectedMonth} onValueChange={setSelectedMonth}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select month" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {months.map((month) => (
+                      <SelectItem key={month} value={month}>
+                        {month}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Select Year
+                </label>
+                <Select value={selectedYear} onValueChange={setSelectedYear}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select year" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {years.map((year) => (
+                      <SelectItem key={year} value={year}>
+                        {year}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
             
             <Button 
@@ -138,9 +167,9 @@ const Reports = () => {
           </CardContent>
         </Card>
 
-        {/* Table Card - Full Width */}
+        {/* Table Card */}
         <Card className="lg:col-span-3">
-          <CardHeader className="pb-3">
+          <CardHeader>
             <CardTitle>
               Attendance Summary for {format(selectedDate, "MMMM yyyy")}
             </CardTitle>
@@ -155,6 +184,7 @@ const Reports = () => {
                     <TableHead className="text-right">Absent</TableHead>
                     <TableHead className="text-right">Late</TableHead>
                     <TableHead className="text-right">Total</TableHead>
+                    <TableHead className="text-right">Status</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -165,6 +195,13 @@ const Reports = () => {
                       <TableCell className="text-right text-red-600">{row.absent}</TableCell>
                       <TableCell className="text-right text-yellow-600">{row.late}</TableCell>
                       <TableCell className="text-right font-medium">{row.total}</TableCell>
+                      <TableCell className="text-right">
+                        <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                          row.status === 'complete' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
+                        }`}>
+                          {row.status}
+                        </span>
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
