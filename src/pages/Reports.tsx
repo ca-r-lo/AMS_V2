@@ -14,6 +14,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/components/ui/use-toast";
+import AttendanceStatus from "@/components/AttendanceStatus";
 
 const Reports = () => {
   const { toast } = useToast();
@@ -28,19 +29,16 @@ const Reports = () => {
   ];
 
   const years = Array.from(
-    { length: 5 },
-    (_, i) => (new Date().getFullYear() - 2 + i).toString()
+    { length: 10 },
+    (_, i) => (new Date().getFullYear() - 5 + i).toString()
   );
 
   // Mock data with proper status handling
   const attendanceData = [
-    { id: 1, date: "2024-03-01", present: 25, absent: 5, late: 2, total: 32 },
-    { id: 2, date: "2024-03-02", present: 28, absent: 3, late: 1, total: 32 },
-    { id: 3, date: "2024-03-03", present: 30, absent: 1, late: 1, total: 32 },
-  ].map(data => ({
-    ...data,
-    status: data.present > 0 ? "complete" : "pending"
-  }));
+    { id: 1, date: "2024-03-01", present: 25, absent: 5, late: 2, total: 32, status: "complete" },
+    { id: 2, date: "2024-03-02", present: 28, absent: 3, late: 1, total: 32, status: "complete" },
+    { id: 3, date: "2024-03-03", present: 30, absent: 1, late: 1, total: 32, status: "pending" },
+  ];
 
   const handleExport = (type: 'excel' | 'pdf' | 'print') => {
     toast({
@@ -196,11 +194,7 @@ const Reports = () => {
                       <TableCell className="text-right text-yellow-600">{row.late}</TableCell>
                       <TableCell className="text-right font-medium">{row.total}</TableCell>
                       <TableCell className="text-right">
-                        <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
-                          row.status === 'complete' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
-                        }`}>
-                          {row.status}
-                        </span>
+                        <AttendanceStatus status={row.status} />
                       </TableCell>
                     </TableRow>
                   ))}
