@@ -2,7 +2,7 @@ import { useState } from "react";
 import ClassSelect from "@/components/ClassSelect";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import AttendanceStatus from "@/components/AttendanceStatus";
 import { Calendar } from "@/components/ui/calendar";
 import SearchBar from "@/components/SearchBar";
 import { format } from "date-fns";
@@ -17,32 +17,23 @@ import {
 
 const ITEMS_PER_PAGE = 25;
 
+// Move mock data outside component to prevent regeneration on re-renders
+const generateMockAttendance = () => {
+  return Array.from({ length: 100 }, (_, index) => ({
+    id: index + 1,
+    name: `Student ${index + 1}`,
+    status: ["present", "absent", "late"][Math.floor((index * 13) % 3)],
+    time: index % 3 === 0 ? "-" : `${8 + Math.floor((index * 7) % 2)}:${Math.floor((index * 11) % 60).toString().padStart(2, '0')} AM`,
+  }));
+};
+
+const mockAttendance = generateMockAttendance();
+
 const Attendance = () => {
   const [selectedSection, setSelectedSection] = useState("All");
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [currentPage, setCurrentPage] = useState(1);
-  const [filteredStudents, setFilteredStudents] = useState<any[]>([]);
-
-  // Mock data for demonstration - in a real app, this would come from an API
-  const students = Array.from({ length: 100 }, (_, index) => ({
-    id: index + 1,
-    name: `Student ${index + 1}`,
-    status: ["present", "absent", "late"][Math.floor(Math.random() * 3)],
-    time: index % 3 === 0 ? "-" : `${8 + Math.floor(Math.random() * 2)}:${Math.floor(Math.random() * 60).toString().padStart(2, '0')} AM`,
-  }));
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "present":
-        return "bg-green-100 text-green-800";
-      case "absent":
-        return "bg-red-100 text-red-800";
-      case "late":
-        return "bg-yellow-100 text-yellow-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
-  };
+  const [filteredStudents, setFilteredStudents] = useState<any[]>(mockAttendance);
 
   const handleSearch = (filtered: any[]) => {
     setFilteredStudents(filtered);
@@ -87,7 +78,7 @@ const Attendance = () => {
                 Attendance for {format(selectedDate, "MMMM d, yyyy")}
               </CardTitle>
               <SearchBar
-                data={students}
+                data={mockAttendance}
                 onSearch={handleSearch}
                 searchFields={["name"]}
                 placeholder="Search students..."
@@ -110,9 +101,7 @@ const Attendance = () => {
                     <TableRow key={student.id}>
                       <TableCell className="font-medium">{student.name}</TableCell>
                       <TableCell>
-                        <Badge className={getStatusColor(student.status)}>
-                          {student.status}
-                        </Badge>
+                        <AttendanceStatus status={student.status} />
                       </TableCell>
                       <TableCell>{student.time}</TableCell>
                       <TableCell>

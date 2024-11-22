@@ -15,20 +15,24 @@ import {
 
 const ITEMS_PER_PAGE = 25;
 
-const Students = () => {
-  const [selectedSection, setSelectedSection] = useState("All");
-  const [currentPage, setCurrentPage] = useState(1);
-  const [filteredStudents, setFilteredStudents] = useState<any[]>([]);
-
-  // Mock data - in a real app, this would come from an API
-  const students = Array.from({ length: 100 }, (_, index) => ({
+// Move mock data outside component to prevent regeneration on re-renders
+const generateMockStudents = () => {
+  return Array.from({ length: 100 }, (_, index) => ({
     id: index + 1,
     name: `Student ${index + 1}`,
     section: ["CYGNUS", "EIM FARADS", "ARTS AND DESIGN"][index % 3],
-    status: ["in_school", "left_school", "absent"][Math.floor(Math.random() * 3)],
-    timeIn: index % 3 === 2 ? null : `7:${(25 + Math.floor(Math.random() * 30)).toString().padStart(2, '0')} AM`,
+    status: ["in_school", "left_school", "absent"][Math.floor((index * 7) % 3)],
+    timeIn: index % 3 === 2 ? null : `7:${(25 + (index * 3) % 30).toString().padStart(2, '0')} AM`,
     timeOut: index % 3 === 1 ? "3:30 PM" : null,
   }));
+};
+
+const mockStudents = generateMockStudents();
+
+const Students = () => {
+  const [selectedSection, setSelectedSection] = useState("All");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [filteredStudents, setFilteredStudents] = useState<any[]>(mockStudents);
 
   const getStatusBadge = (status: string) => {
     const statusConfig = {
@@ -36,7 +40,7 @@ const Students = () => {
       left_school: { label: "Left School", class: "bg-yellow-100 text-yellow-800" },
       absent: { label: "Absent", class: "bg-red-100 text-red-800" },
     };
-    
+
     const config = statusConfig[status as keyof typeof statusConfig];
     return <Badge className={config.class}>{config.label}</Badge>;
   };
@@ -57,10 +61,10 @@ const Students = () => {
   const currentStudents = displayedStudents.slice(startIndex, endIndex);
 
   const stats = {
-    total: students.length,
-    inSchool: students.filter(s => s.status === "in_school").length,
-    leftSchool: students.filter(s => s.status === "left_school").length,
-    absent: students.filter(s => s.status === "absent").length,
+    total: mockStudents.length,
+    inSchool: mockStudents.filter(s => s.status === "in_school").length,
+    leftSchool: mockStudents.filter(s => s.status === "left_school").length,
+    absent: mockStudents.filter(s => s.status === "absent").length,
   };
 
   return (
@@ -110,7 +114,7 @@ const Students = () => {
 
       <div className="flex justify-between items-center mb-4">
         <SearchBar
-          data={students}
+          data={mockStudents}
           onSearch={handleSearch}
           searchFields={["name", "section"]}
           placeholder="Search students..."
