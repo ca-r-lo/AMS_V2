@@ -6,6 +6,37 @@ Set the API base URL in your `.env` file:
 VITE_API_URL=https://your-api-domain.com
 ```
 
+## Home Page (`/`)
+
+### Get Sections Overview
+- **Endpoint**: `GET /api/sections`
+- **Description**: Fetches sections data and recent activity
+- **Response**:
+```json
+{
+  "sections": [
+    {
+      "id": 1,
+      "name": "Section 1",
+      "grade": "11",
+      "strand": "STEM",
+      "totalStudents": 30,
+      "present": 25,
+      "absent": 5
+    }
+  ],
+  "recent_activity": [
+    {
+      "id": 1,
+      "time": "08:30 AM",
+      "action": "Time In",
+      "student": "John Doe",
+      "section": "CYGNUS"
+    }
+  ]
+}
+```
+
 ## Dashboard Page (`/dashboard`)
 
 ### Get Dashboard Data
