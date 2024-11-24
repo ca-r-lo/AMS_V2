@@ -2,19 +2,29 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { Clock } from "lucide-react";
 import ClassSelect from "@/components/ClassSelect";
+import { getApiUrl } from "@/config/api";
+import { useQuery } from "@tanstack/react-query";
 
 const Dashboard = () => {
-  const [currentTime] = useState(new Date().toLocaleTimeString());
   const [selectedSection, setSelectedSection] = useState("All");
   
-  const stats = [
+  const { data: dashboardData } = useQuery({
+    queryKey: ['dashboard'],
+    queryFn: async () => {
+      const response = await fetch(getApiUrl('/api/dashboard'));
+      if (!response.ok) throw new Error('Failed to fetch dashboard data');
+      return response.json();
+    }
+  });
+
+  const stats = dashboardData?.stats || [
     { label: 'Total Students', value: '265', id: 1 },
     { label: "Today's Attendance", value: '95', id: 2 },
     { label: 'Absent Students', value: '170', id: 3 },
     { label: 'Attendance Rate', value: '36%', id: 4 },
   ];
 
-  const attendanceLog = [
+  const attendanceLog = dashboardData?.recent_activity || [
     { time: '17:54:40', log: 'TIME OUT', lrn: '129437110011', name: 'IMPAS, LADY JASMINE RANOLAS', section: 'TDM' },
     { time: '17:54:35', log: 'TIME OUT', lrn: '129817130174', name: 'GUINITA, MERRY JOY CENTINO', section: 'TDM' },
     { time: '17:51:14', log: 'TIME OUT', lrn: '129665120062', name: 'GUERRA, MARIA ODEZA BOQUIA', section: 'BNC' },
@@ -28,7 +38,7 @@ const Dashboard = () => {
           <ClassSelect value={selectedSection} onChange={setSelectedSection} />
           <div className="flex items-center space-x-2 text-gray-500">
             <Clock className="w-5 h-5" />
-            <span>{currentTime}</span>
+            <span>{new Date().toLocaleTimeString()}</span>
           </div>
         </div>
       </div>

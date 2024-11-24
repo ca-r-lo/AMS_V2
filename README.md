@@ -4,6 +4,24 @@
 
 **URL**: https://lovable.dev/projects/9227efa1-c2d5-4a42-8fe2-b9726736514d
 
+## API Configuration
+
+To configure the API domain, you need to set the `VITE_API_URL` environment variable. There are several ways to do this:
+
+1. Create a `.env` file in the root directory:
+```sh
+VITE_API_URL=https://your-api-domain.com
+```
+
+2. Set it directly when running the development server:
+```sh
+VITE_API_URL=https://your-api-domain.com npm run dev
+```
+
+3. For production deployment, set the environment variable in your hosting platform.
+
+The default API URL is `http://localhost:5000` if no environment variable is set.
+
 ## How can I edit this code?
 
 There are several ways of editing your application.
