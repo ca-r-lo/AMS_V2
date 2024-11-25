@@ -17,7 +17,23 @@ const queryClient = new QueryClient();
 
 const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
   const token = localStorage.getItem("token");
+  const connectionStatus = localStorage.getItem("connection_status");
+  
+  if (connectionStatus !== "success") {
+    return <Navigate to="/" />;
+  }
+  
   return token ? children : <Navigate to="/login" />;
+};
+
+const AuthRoute = ({ children }: { children: React.ReactNode }) => {
+  const connectionStatus = localStorage.getItem("connection_status");
+  
+  if (connectionStatus !== "success") {
+    return <Navigate to="/" />;
+  }
+  
+  return children;
 };
 
 const App = () => (
@@ -28,8 +44,22 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<ServerTest />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<SignUp />} />
+          <Route
+            path="/login"
+            element={
+              <AuthRoute>
+                <Login />
+              </AuthRoute>
+            }
+          />
+          <Route
+            path="/signup"
+            element={
+              <AuthRoute>
+                <SignUp />
+              </AuthRoute>
+            }
+          />
           <Route
             path="/*"
             element={

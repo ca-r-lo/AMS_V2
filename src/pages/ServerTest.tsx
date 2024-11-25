@@ -2,10 +2,12 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { API_BASE_URL } from "@/config/api";
 import { Loader2, ServerCrash, CheckCircle2 } from "lucide-react";
+import { useToast } from "@/components/ui/use-toast";
 
 const ServerTest = () => {
   const [status, setStatus] = useState<"testing" | "success" | "error">("testing");
   const navigate = useNavigate();
+  const { toast } = useToast();
 
   useEffect(() => {
     const testConnection = async () => {
@@ -13,19 +15,26 @@ const ServerTest = () => {
         const response = await fetch(`${API_BASE_URL}/api/health`);
         if (response.ok) {
           setStatus("success");
+          localStorage.setItem("connection_status", "success");
+          toast({
+            title: "Connection Successful",
+            description: "Redirecting to login page...",
+          });
           setTimeout(() => {
             navigate("/login");
           }, 1500);
         } else {
           setStatus("error");
+          localStorage.removeItem("connection_status");
         }
       } catch (error) {
         setStatus("error");
+        localStorage.removeItem("connection_status");
       }
     };
 
     testConnection();
-  }, [navigate]);
+  }, [navigate, toast]);
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50">
