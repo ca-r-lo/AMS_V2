@@ -1,16 +1,15 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useQuery } from "@tanstack/react-query";
-
-const fetchStats = async () => {
-  const response = await fetch('http://localhost:5000/api/stats');
-  if (!response.ok) throw new Error('Failed to fetch stats');
-  return response.json();
-};
+import { API_BASE_URL } from "@/config/api";
 
 export const ReportStats = () => {
   const { data: stats, isLoading } = useQuery({
     queryKey: ['reportStats'],
-    queryFn: fetchStats
+    queryFn: async () => {
+      const response = await fetch(`${API_BASE_URL}/api/stats`);
+      if (!response.ok) throw new Error('Failed to fetch stats');
+      return response.json();
+    }
   });
 
   if (isLoading) return <div>Loading stats...</div>;

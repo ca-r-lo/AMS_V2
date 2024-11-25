@@ -1,17 +1,16 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useQuery } from "@tanstack/react-query";
 import AttendanceStatus from "../AttendanceStatus";
-
-const fetchReports = async () => {
-  const response = await fetch('http://localhost:5000/api/reports');
-  if (!response.ok) throw new Error('Failed to fetch reports');
-  return response.json();
-};
+import { API_BASE_URL } from "@/config/api";
 
 export const ReportTable = () => {
   const { data: attendanceData, isLoading } = useQuery({
     queryKey: ['reports'],
-    queryFn: fetchReports
+    queryFn: async () => {
+      const response = await fetch(`${API_BASE_URL}/api/reports`);
+      if (!response.ok) throw new Error('Failed to fetch reports');
+      return response.json();
+    }
   });
 
   if (isLoading) return <div>Loading reports...</div>;

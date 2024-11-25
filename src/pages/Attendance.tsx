@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import ClassSelect from "@/components/ClassSelect";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -14,26 +15,30 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import { API_BASE_URL } from "@/config/api";
 
 const ITEMS_PER_PAGE = 25;
-
-// Move mock data outside component to prevent regeneration on re-renders
-const generateMockAttendance = () => {
-  return Array.from({ length: 100 }, (_, index) => ({
-    id: index + 1,
-    name: `Student ${index + 1}`,
-    status: ["present", "absent", "late"][Math.floor((index * 13) % 3)],
-    time: index % 3 === 0 ? "-" : `${8 + Math.floor((index * 7) % 2)}:${Math.floor((index * 11) % 60).toString().padStart(2, '0')} AM`,
-  }));
-};
-
-const mockAttendance = generateMockAttendance();
 
 const Attendance = () => {
   const [selectedSection, setSelectedSection] = useState("All");
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [currentPage, setCurrentPage] = useState(1);
-  const [filteredStudents, setFilteredStudents] = useState<any[]>(mockAttendance);
+  const [filteredStudents, setFilteredStudents] = useState<any[]>([]);
+
+  const { data: attendanceData, isLoading } = useQuery({
+    queryKey: ['attendance', selectedSection, selectedDate],
+    queryFn: async () => {
+      const params = new URLSearchParams({
+        date: format(selectedDate, 'yyyy-MM-dd'),
+        ...(selectedSection !== "All" && { section: selectedSection }),
+      });
+      const response = await fetch(`${API_BASE_URL}/api/attendance?${params}`);
+      if (!response.ok) throw new Error('Failed to fetch attendance');
+      return response.json();
+    }
+  });
+
+  const attendance = attendanceData || [];
 
   const handleSearch = (filtered: any[]) => {
     setFilteredStudents(filtered);
@@ -41,10 +46,13 @@ const Attendance = () => {
   };
 
   // Calculate pagination
-  const totalPages = Math.ceil(filteredStudents.length / ITEMS_PER_PAGE);
+  const displayedStudents = filteredStudents.length > 0 ? filteredStudents : attendance;
+  const totalPages = Math.ceil(displayedStudents.length / ITEMS_PER_PAGE);
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const endIndex = startIndex + ITEMS_PER_PAGE;
-  const currentStudents = filteredStudents.slice(startIndex, endIndex);
+  const currentStudents = displayedStudents.slice(startIndex, endIndex);
+
+  if (isLoading) return <div>Loading attendance data...</div>;
 
   return (
     <div className="space-y-6 p-6 bg-gray-50 min-h-screen">
@@ -78,7 +86,7 @@ const Attendance = () => {
                 Attendance for {format(selectedDate, "MMMM d, yyyy")}
               </CardTitle>
               <SearchBar
-                data={mockAttendance}
+                data={attendance}
                 onSearch={handleSearch}
                 searchFields={["name"]}
                 placeholder="Search students..."
@@ -128,7 +136,7 @@ const Attendance = () => {
                     />
                   </PaginationItem>
                   
-                  {Array.from({ length: totalPages }, (_, index) => index + 1).map((page) => (
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
                     <PaginationItem key={page}>
                       <PaginationLink
                         href="#"

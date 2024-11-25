@@ -28,13 +28,15 @@ const studentSchema = z.object({
   sectionId: z.string().min(1, "Section is required"),
 });
 
+type StudentFormData = z.infer<typeof studentSchema>;
+
 type StudentFormProps = {
   sections: { id: number; name: string }[];
-  onSubmit: (data: z.infer<typeof studentSchema>) => Promise<void>;
+  onSubmit: (data: StudentFormData) => Promise<void>;
 };
 
 const StudentForm = ({ sections, onSubmit }: StudentFormProps) => {
-  const form = useForm({
+  const form = useForm<StudentFormData>({
     resolver: zodResolver(studentSchema),
     defaultValues: {
       firstName: '',

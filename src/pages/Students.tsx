@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import ClassSelect from "@/components/ClassSelect";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -12,27 +13,25 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import { API_BASE_URL } from "@/config/api";
 
 const ITEMS_PER_PAGE = 25;
-
-// Move mock data outside component to prevent regeneration on re-renders
-const generateMockStudents = () => {
-  return Array.from({ length: 100 }, (_, index) => ({
-    id: index + 1,
-    name: `Student ${index + 1}`,
-    section: ["CYGNUS", "EIM FARADS", "ARTS AND DESIGN"][index % 3],
-    status: ["in_school", "left_school", "absent"][Math.floor((index * 7) % 3)],
-    timeIn: index % 3 === 2 ? null : `7:${(25 + (index * 3) % 30).toString().padStart(2, '0')} AM`,
-    timeOut: index % 3 === 1 ? "3:30 PM" : null,
-  }));
-};
-
-const mockStudents = generateMockStudents();
 
 const Students = () => {
   const [selectedSection, setSelectedSection] = useState("All");
   const [currentPage, setCurrentPage] = useState(1);
-  const [filteredStudents, setFilteredStudents] = useState<any[]>(mockStudents);
+  const [filteredStudents, setFilteredStudents] = useState<any[]>([]);
+
+  const { data: studentsData, isLoading } = useQuery({
+    queryKey: ['students', selectedSection],
+    queryFn: async () => {
+      const response = await fetch(`${API_BASE_URL}/api/students${selectedSection !== "All" ? `?section=${selectedSection}` : ''}`);
+      if (!response.ok) throw new Error('Failed to fetch students');
+      return response.json();
+    }
+  });
+
+  const students = studentsData?.students || [];
 
   const getStatusBadge = (status: string) => {
     const statusConfig = {
@@ -51,8 +50,8 @@ const Students = () => {
   };
 
   const displayedStudents = selectedSection === "All" 
-    ? filteredStudents
-    : filteredStudents.filter(student => student.section === selectedSection);
+    ? (filteredStudents.length > 0 ? filteredStudents : students)
+    : (filteredStudents.length > 0 ? filteredStudents : students).filter(student => student.section.name === selectedSection);
 
   // Calculate pagination
   const totalPages = Math.ceil(displayedStudents.length / ITEMS_PER_PAGE);
@@ -60,12 +59,7 @@ const Students = () => {
   const endIndex = startIndex + ITEMS_PER_PAGE;
   const currentStudents = displayedStudents.slice(startIndex, endIndex);
 
-  const stats = {
-    total: mockStudents.length,
-    inSchool: mockStudents.filter(s => s.status === "in_school").length,
-    leftSchool: mockStudents.filter(s => s.status === "left_school").length,
-    absent: mockStudents.filter(s => s.status === "absent").length,
-  };
+  if (isLoading) return <div>Loading students...</div>;
 
   return (
     <div className="space-y-6">
@@ -83,7 +77,7 @@ const Students = () => {
             <CardTitle className="text-sm font-medium text-gray-500">Total Students</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.total}</div>
+            <div className="text-2xl font-bold">{students.length}</div>
           </CardContent>
         </Card>
         <Card>
@@ -91,7 +85,9 @@ const Students = () => {
             <CardTitle className="text-sm font-medium text-gray-500">In School</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600">{stats.inSchool}</div>
+            <div className="text-2xl font-bold text-green-600">
+              {students.filter(s => s.status === "in_school").length}
+            </div>
           </CardContent>
         </Card>
         <Card>
@@ -99,7 +95,9 @@ const Students = () => {
             <CardTitle className="text-sm font-medium text-gray-500">Left School</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-yellow-600">{stats.leftSchool}</div>
+            <div className="text-2xl font-bold text-yellow-600">
+              {students.filter(s => s.status === "left_school").length}
+            </div>
           </CardContent>
         </Card>
         <Card>
@@ -107,16 +105,18 @@ const Students = () => {
             <CardTitle className="text-sm font-medium text-gray-500">Absent</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-red-600">{stats.absent}</div>
+            <div className="text-2xl font-bold text-red-600">
+              {students.filter(s => s.status === "absent").length}
+            </div>
           </CardContent>
         </Card>
       </div>
 
       <div className="flex justify-between items-center mb-4">
         <SearchBar
-          data={mockStudents}
+          data={students}
           onSearch={handleSearch}
-          searchFields={["name", "section"]}
+          searchFields={["firstName", "lastName", "section.name"]}
           placeholder="Search students..."
         />
       </div>
@@ -139,8 +139,10 @@ const Students = () => {
             <TableBody>
               {currentStudents.map((student) => (
                 <TableRow key={student.id}>
-                  <TableCell className="font-medium">{student.name}</TableCell>
-                  <TableCell>{student.section}</TableCell>
+                  <TableCell className="font-medium">
+                    {`${student.firstName} ${student.middleName} ${student.lastName}`}
+                  </TableCell>
+                  <TableCell>{student.section.name}</TableCell>
                   <TableCell>{getStatusBadge(student.status)}</TableCell>
                   <TableCell>{student.timeIn || "-"}</TableCell>
                   <TableCell>{student.timeOut || "-"}</TableCell>
