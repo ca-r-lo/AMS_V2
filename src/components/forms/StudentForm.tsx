@@ -23,7 +23,7 @@ const studentSchema = z.object({
   firstName: z.string().min(1, "First name is required"),
   middleName: z.string(),
   lastName: z.string().min(1, "Last name is required"),
-  age: z.string().transform(Number),
+  age: z.string().transform((val) => parseInt(val, 10)),
   lrn: z.string().length(12, "LRN must be 12 digits"),
   sectionId: z.string().min(1, "Section is required"),
 });
