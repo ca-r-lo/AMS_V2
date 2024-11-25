@@ -11,41 +11,25 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 
-const studentSchema = z.object({
+const formSchema = z.object({
   firstName: z.string().min(1, "First name is required"),
   middleName: z.string(),
   lastName: z.string().min(1, "Last name is required"),
-  age: z.string().transform((val) => parseInt(val, 10)),
+  age: z.coerce.number().min(1, "Age is required"),
   lrn: z.string().length(12, "LRN must be 12 digits"),
   sectionId: z.string().min(1, "Section is required"),
 });
 
-type StudentFormData = z.infer<typeof studentSchema>;
-
 type StudentFormProps = {
-  sections: { id: number; name: string }[];
-  onSubmit: (data: StudentFormData) => Promise<void>;
+  onSubmit: (data: z.infer<typeof formSchema>) => Promise<void>;
+  sections: Array<{ id: number; name: string }>;
 };
 
-const StudentForm = ({ sections, onSubmit }: StudentFormProps) => {
-  const form = useForm<StudentFormData>({
-    resolver: zodResolver(studentSchema),
-    defaultValues: {
-      firstName: '',
-      middleName: '',
-      lastName: '',
-      age: '',
-      lrn: '',
-      sectionId: ''
-    }
+const StudentForm = ({ onSubmit, sections }: StudentFormProps) => {
+  const form = useForm({
+    resolver: zodResolver(formSchema),
+    defaultValues: { firstName: '', middleName: '', lastName: '', age: 0, lrn: '', sectionId: '' }
   });
 
   return (
@@ -97,7 +81,7 @@ const StudentForm = ({ sections, onSubmit }: StudentFormProps) => {
             <FormItem>
               <FormLabel>Age</FormLabel>
               <FormControl>
-                <Input {...field} type="number" />
+                <Input type="number" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -110,7 +94,7 @@ const StudentForm = ({ sections, onSubmit }: StudentFormProps) => {
             <FormItem>
               <FormLabel>LRN</FormLabel>
               <FormControl>
-                <Input {...field} maxLength={12} />
+                <Input {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -122,20 +106,16 @@ const StudentForm = ({ sections, onSubmit }: StudentFormProps) => {
           render={({ field }) => (
             <FormItem>
               <FormLabel>Section</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a section" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  {sections.map((section) => (
-                    <SelectItem key={section.id} value={section.id.toString()}>
+              <FormControl>
+                <select {...field} className="border rounded-md p-2 w-full">
+                  <option value="">Select a section</option>
+                  {sections.map(section => (
+                    <option key={section.id} value={section.id}>
                       {section.name}
-                    </SelectItem>
+                    </option>
                   ))}
-                </SelectContent>
-              </Select>
+                </select>
+              </FormControl>
               <FormMessage />
             </FormItem>
           )}
