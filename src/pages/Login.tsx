@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { API_BASE_URL } from "@/config/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -55,7 +55,12 @@ const Login = () => {
         <div className="text-center">
           <img src="/logo.png" alt="Logo" className="mx-auto h-16 w-16" />
           <h2 className="mt-6 text-3xl font-bold text-gray-900">Welcome Back</h2>
-          <p className="mt-2 text-sm text-gray-600">Please sign in to continue</p>
+          <p className="mt-2 text-sm text-gray-600">
+            Don't have an account?{" "}
+            <Link to="/signup" className="text-primary hover:text-primary/90">
+              Sign up
+            </Link>
+          </p>
         </div>
 
         <form onSubmit={handleLogin} className="mt-8 space-y-6">

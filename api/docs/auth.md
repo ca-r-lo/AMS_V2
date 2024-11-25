@@ -22,3 +22,27 @@ Response:
   }
 }
 ```
+
+## POST /api/auth/register
+Creates a new user account.
+
+Request body:
+```json
+{
+  "username": "string",
+  "password": "string",
+  "email": "string"
+}
+```
+
+Response:
+```json
+{
+  "message": "string",
+  "user": {
+    "id": "number",
+    "username": "string",
+    "email": "string"
+  }
+}
+```

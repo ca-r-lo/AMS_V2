@@ -11,6 +11,7 @@ import Attendance from "./pages/Attendance";
 import Reports from "./pages/Reports";
 import ServerTest from "./pages/ServerTest";
 import Login from "./pages/Login";
+import SignUp from "./pages/SignUp";
 
 const queryClient = new QueryClient();
 
@@ -28,6 +29,7 @@ const App = () => (
         <Routes>
           <Route path="/" element={<ServerTest />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<SignUp />} />
           <Route
             path="/*"
             element={
