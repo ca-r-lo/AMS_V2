@@ -16,7 +16,7 @@ import { Plus } from "lucide-react";
 import { API_BASE_URL } from "@/config/api";
 
 const Index = () => {
-  const [activeTab, setActiveTab] = useState<'sections' | 'students'>('sections');
+  const [activeTab, setActiveTab] = useState<'section' | 'student'>('section');
   const [filteredData, setFilteredData] = useState<any[]>([]);
 
   const { data: sectionsData, refetch: refetchSections } = useQuery({
@@ -44,7 +44,7 @@ const Index = () => {
 
   const sections = sectionsData?.sections || [];
   const students = studentsData?.students || [];
-  const currentData = activeTab === 'sections' ? sections : students;
+  const currentData = activeTab === 'section' ? sections : students;
 
   return (
     <div className="space-y-6">
@@ -55,14 +55,14 @@ const Index = () => {
         </div>
         <div className="space-x-2">
           <Button
-            variant={activeTab === 'sections' ? 'default' : 'outline'}
-            onClick={() => setActiveTab('sections')}
+            variant={activeTab === 'section' ? 'default' : 'outline'}
+            onClick={() => setActiveTab('section')}
           >
             Sections
           </Button>
           <Button
-            variant={activeTab === 'students' ? 'default' : 'outline'}
-            onClick={() => setActiveTab('students')}
+            variant={activeTab === 'student' ? 'default' : 'outline'}
+            onClick={() => setActiveTab('student')}
           >
             Students
           </Button>
@@ -73,19 +73,19 @@ const Index = () => {
         <SearchBar
           data={currentData}
           onSearch={setFilteredData}
-          searchFields={activeTab === 'sections' ? ['name', 'gradeLevel'] : ['firstName', 'lastName', 'lrn']}
-          placeholder={`Search ${activeTab}...`}
+          searchFields={activeTab === 'section' ? ['name', 'gradeLevel'] : ['firstName', 'lastName', 'lrn']}
+          placeholder={`Search ${activeTab}s...`}
         />
         <Dialog>
           <DialogTrigger asChild>
             <Button className="flex items-center gap-2">
               <Plus className="w-4 h-4" />
-              Add New {activeTab === 'sections' ? 'Section' : 'Student'}
+              Add New {activeTab === 'section' ? 'Section' : 'Student'}
             </Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Register New {activeTab === 'sections' ? 'Section' : 'Student'}</DialogTitle>
+              <DialogTitle>Register New {activeTab === 'section' ? 'Section' : 'Student'}</DialogTitle>
             </DialogHeader>
             <RegisterForm 
               type={activeTab} 
@@ -98,13 +98,13 @@ const Index = () => {
 
       <Card>
         <CardHeader>
-          <CardTitle>{activeTab === 'sections' ? 'Sections' : 'Students'} List</CardTitle>
+          <CardTitle>{activeTab === 'section' ? 'Sections' : 'Students'} List</CardTitle>
         </CardHeader>
         <CardContent>
           <Table>
             <TableHeader>
               <TableRow>
-                {activeTab === 'sections' ? (
+                {activeTab === 'section' ? (
                   <>
                     <TableHead>Section Name</TableHead>
                     <TableHead>Grade Level</TableHead>
@@ -122,7 +122,7 @@ const Index = () => {
             <TableBody>
               {(filteredData.length > 0 ? filteredData : currentData).map((item: any) => (
                 <TableRow key={item.id}>
-                  {activeTab === 'sections' ? (
+                  {activeTab === 'section' ? (
                     <>
                       <TableCell className="font-medium">{item.name}</TableCell>
                       <TableCell>{item.gradeLevel}</TableCell>
