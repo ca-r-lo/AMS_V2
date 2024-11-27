@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { API_BASE_URL } from "@/config/api";
 import { Loader2, ServerCrash, CheckCircle2 } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
+import { CONNECTION_TIMEOUT } from "@/utils/sessionTimeout";
 
 const ServerTest = () => {
   const [status, setStatus] = useState<"testing" | "success" | "error">("testing");
@@ -10,9 +11,26 @@ const ServerTest = () => {
   const { toast } = useToast();
 
   useEffect(() => {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => {
+      controller.abort();
+      setStatus("error");
+      localStorage.removeItem("connection_status");
+      toast({
+        variant: "destructive",
+        title: "Connection Timeout",
+        description: "Server is not responding. Please try again.",
+      });
+    }, CONNECTION_TIMEOUT);
+
     const testConnection = async () => {
       try {
-        const response = await fetch(`${API_BASE_URL}/api/health`);
+        const response = await fetch(`${API_BASE_URL}/api/health`, {
+          signal: controller.signal
+        });
+        
+        clearTimeout(timeoutId);
+        
         if (response.ok) {
           setStatus("success");
           localStorage.setItem("connection_status", "success");
@@ -28,12 +46,21 @@ const ServerTest = () => {
           localStorage.removeItem("connection_status");
         }
       } catch (error) {
+        if (error.name === 'AbortError') {
+          // Timeout already handled
+          return;
+        }
         setStatus("error");
         localStorage.removeItem("connection_status");
       }
     };
 
     testConnection();
+
+    return () => {
+      clearTimeout(timeoutId);
+      controller.abort();
+    };
   }, [navigate, toast]);
 
   return (

@@ -3,6 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { useEffect } from "react";
 import Layout from "./components/Layout";
 import Index from "./pages/Index";
 import Dashboard from "./pages/Dashboard";
@@ -12,12 +13,21 @@ import Reports from "./pages/Reports";
 import ServerTest from "./pages/ServerTest";
 import Login from "./pages/Login";
 import SignUp from "./pages/SignUp";
+import { setupActivityListeners, cleanupActivityListeners, resetTimeout } from "./utils/sessionTimeout";
 
 const queryClient = new QueryClient();
 
 const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
   const token = localStorage.getItem("token");
   const connectionStatus = localStorage.getItem("connection_status");
+  
+  useEffect(() => {
+    if (token) {
+      setupActivityListeners();
+      resetTimeout();
+      return () => cleanupActivityListeners();
+    }
+  }, [token]);
   
   if (connectionStatus !== "success") {
     return <Navigate to="/" />;
