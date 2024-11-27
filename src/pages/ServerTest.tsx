@@ -4,11 +4,15 @@ import { API_BASE_URL } from "@/config/api";
 import { Loader2, ServerCrash, CheckCircle2 } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { CONNECTION_TIMEOUT } from "@/utils/sessionTimeout";
+import { useQueryClient } from "@tanstack/react-query";
+import { prefetchAllData } from "@/utils/prefetchData";
+import LoadingScreen from "@/components/LoadingScreen";
 
 const ServerTest = () => {
-  const [status, setStatus] = useState<"testing" | "success" | "error">("testing");
+  const [status, setStatus] = useState<"testing" | "prefetching" | "success" | "error">("testing");
   const navigate = useNavigate();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     const controller = new AbortController();
@@ -32,22 +36,34 @@ const ServerTest = () => {
         clearTimeout(timeoutId);
         
         if (response.ok) {
-          setStatus("success");
-          localStorage.setItem("connection_status", "success");
-          toast({
-            title: "Connection Successful",
-            description: "Redirecting to login page...",
-          });
-          setTimeout(() => {
-            navigate("/login");
-          }, 1500);
+          setStatus("prefetching");
+          const prefetchSuccess = await prefetchAllData(queryClient);
+          
+          if (prefetchSuccess) {
+            setStatus("success");
+            localStorage.setItem("connection_status", "success");
+            toast({
+              title: "Connection Successful",
+              description: "Redirecting to login page...",
+            });
+            setTimeout(() => {
+              navigate("/login");
+            }, 1500);
+          } else {
+            setStatus("error");
+            localStorage.removeItem("connection_status");
+            toast({
+              variant: "destructive",
+              title: "Data Loading Error",
+              description: "Failed to load initial data. Please try again.",
+            });
+          }
         } else {
           setStatus("error");
           localStorage.removeItem("connection_status");
         }
       } catch (error) {
         if (error.name === 'AbortError') {
-          // Timeout already handled
           return;
         }
         setStatus("error");
@@ -61,7 +77,7 @@ const ServerTest = () => {
       clearTimeout(timeoutId);
       controller.abort();
     };
-  }, [navigate, toast]);
+  }, [navigate, toast, queryClient]);
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50">
@@ -74,6 +90,10 @@ const ServerTest = () => {
               <Loader2 className="w-16 h-16 animate-spin text-primary" />
               <p className="text-gray-600">Testing connection to server...</p>
             </>
+          )}
+
+          {status === "prefetching" && (
+            <LoadingScreen message="Loading initial data..." />
           )}
           
           {status === "success" && (
