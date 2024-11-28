@@ -76,6 +76,7 @@ const App = () => (
               <PrivateRoute>
                 <Layout>
                   <Routes>
+                    <Route path="/home" element={<Index />} />
                     <Route path="/dashboard" element={<Dashboard />} />
                     <Route path="/students" element={<Students />} />
                     <Route path="/attendance" element={<Attendance />} />
