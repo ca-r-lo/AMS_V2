@@ -1,9 +1,53 @@
 # API Documentation
 
+## Home Page Endpoints
+
+### GET /api/home/sections
+Returns sections data specifically for the home page view.
+
+Response structure:
+```json
+{
+  "sections": [
+    {
+      "id": number,
+      "name": "string",
+      "gradeLevel": "string"
+    }
+  ]
+}
+```
+
+### GET /api/home/students
+Returns students data specifically for the home page view. Can be filtered by section.
+
+Query parameters:
+- section (optional): Filter by section name
+
+Response structure:
+```json
+{
+  "students": [
+    {
+      "id": number,
+      "firstName": "string",
+      "middleName": "string",
+      "lastName": "string",
+      "age": number,
+      "lrn": "string",
+      "section": {
+        "id": number,
+        "name": "string"
+      }
+    }
+  ]
+}
+```
+
 ## Dashboard Endpoints
 
 ### GET /api/dashboard
-Returns dashboard overview data including stats and recent activity.
+Returns dashboard overview data including stats.
 
 Response structure:
 ```json
@@ -14,125 +58,46 @@ Response structure:
       "value": "string",
       "id": number
     }
-  ],
-  "recent_activity": [
-    {
-      "time": "string",
-      "log": "string",
-      "lrn": "string",
-      "name": "string",
-      "section": "string"
-    }
   ]
 }
 ```
 
-## Students Endpoints
+## Main Sections Endpoints
 
-### GET /api/students
-Returns list of students, can be filtered by section.
+### GET /api/sections
+Returns complete list of sections.
 
-Query parameters:
-- section (optional): Filter by section name
-
-Response structure:
-```json
-[
-  {
-    "id": number,
-    "name": "string",
-    "section": "string",
-    "status": "string",
-    "timeIn": "string",
-    "timeOut": "string"
-  }
-]
-```
-
-### GET /api/students/{student_id}
-Returns details for a specific student.
-
-Response structure:
-```json
-{
-  "id": number,
-  "name": "string",
-  "section": "string",
-  "status": "string",
-  "timeIn": "string",
-  "timeOut": "string"
-}
-```
-
-## Attendance Endpoints
-
-### GET /api/attendance
-Returns attendance records for a specific date and section.
-
-Query parameters:
-- date (optional): Filter by date (YYYY-MM-DD)
-- section (optional): Filter by section name
-
-Response structure:
-```json
-[
-  {
-    "id": number,
-    "name": "string",
-    "status": "string",
-    "time": "string"
-  }
-]
-```
-
-### POST /api/attendance
-Marks attendance for a student.
+### POST /api/sections
+Creates a new section.
 
 Request body:
 ```json
 {
-  "student_id": number,
-  "status": "string",
-  "time": "string"
+  "name": "string",
+  "gradeLevel": "string"
 }
 ```
 
-Response structure:
+## Main Students Endpoints
+
+### GET /api/students
+Returns complete list of students. Can be filtered by section.
+
+Query parameters:
+- section (optional): Filter by section name
+
+### POST /api/students
+Registers a new student.
+
+Request body:
 ```json
 {
-  "message": "string"
-}
-```
-
-## Reports Endpoints
-
-### GET /api/reports
-Returns attendance reports data.
-
-Response structure:
-```json
-[
-  {
-    "id": number,
-    "date": "string",
-    "present": number,
-    "absent": number,
-    "late": number,
-    "total": number,
-    "status": "string"
-  }
-]
-```
-
-### GET /api/stats
-Returns attendance statistics.
-
-Response structure:
-```json
-{
-  "average_attendance": number,
-  "daily_average": number,
-  "chronic_absences": number
+  "firstName": "string",
+  "middleName": "string",
+  "lastName": "string",
+  "age": number,
+  "lrn": "string",
+  "sectionId": number
 }
 ```
 
