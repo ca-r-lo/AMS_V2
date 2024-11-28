@@ -24,7 +24,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   };
 
   const navItems = [
-    { icon: Home, label: "Home", path: "/dashboard" },
+    { icon: Home, label: "Home", path: "/home" },
     { icon: LayoutDashboard, label: "Dashboard", path: "/dashboard" },
     { icon: Users, label: "Students", path: "/students" },
     { icon: ClipboardCheck, label: "Attendance", path: "/attendance" },
