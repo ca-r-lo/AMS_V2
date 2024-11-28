@@ -15,20 +15,20 @@ export const ReportStats = () => {
   if (isLoading) return <div>Loading stats...</div>;
 
   return (
-    <Card>
+    <Card className="w-full">
       <CardHeader>
         <CardTitle>Quick Stats</CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="p-4 bg-green-50 rounded-lg">
+      <CardContent className="grid gap-4">
+        <div className="p-6 bg-green-50 rounded-lg flex flex-col justify-center min-h-[120px]">
           <div className="text-4xl font-bold text-green-600">{stats?.average_attendance}%</div>
           <p className="text-sm text-gray-600">Average Attendance Rate</p>
         </div>
-        <div className="p-4 bg-blue-50 rounded-lg">
+        <div className="p-6 bg-blue-50 rounded-lg flex flex-col justify-center min-h-[120px]">
           <div className="text-4xl font-bold text-blue-600">{stats?.daily_average}</div>
           <p className="text-sm text-gray-600">Average Daily Attendance</p>
         </div>
-        <div className="p-4 bg-purple-50 rounded-lg">
+        <div className="p-6 bg-purple-50 rounded-lg flex flex-col justify-center min-h-[120px]">
           <div className="text-4xl font-bold text-purple-600">{stats?.chronic_absences}</div>
           <p className="text-sm text-gray-600">Chronic Absences</p>
         </div>
