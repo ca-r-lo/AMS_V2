@@ -34,10 +34,20 @@ dashboard_data = {
     ]
 }
 
-# Mock data for attendance and reports
-# ... keep existing code (attendance_data and reports_data)
+# Home page specific endpoints
+@app.route('/api/home/sections', methods=['GET'])
+def get_home_sections():
+    return jsonify({"sections": sections_data})
 
-# Sections endpoints
+@app.route('/api/home/students', methods=['GET'])
+def get_home_students():
+    section = request.args.get('section', None)
+    if section:
+        filtered_students = [s for s in students_data if s['section']['name'] == section]
+        return jsonify({"students": filtered_students})
+    return jsonify({"students": students_data})
+
+# Main sections endpoints
 @app.route('/api/sections', methods=['GET'])
 def get_sections():
     return jsonify({"sections": sections_data})
@@ -53,7 +63,7 @@ def create_section():
     sections_data.append(new_section)
     return jsonify({**new_section, "message": "Section registered successfully"}), 201
 
-# Students endpoints
+# Main students endpoints
 @app.route('/api/students', methods=['GET'])
 def get_students():
     section = request.args.get('section', None)
@@ -86,11 +96,7 @@ def create_student():
 def get_dashboard():
     return jsonify(dashboard_data)
 
-# Attendance endpoints
-# ... keep existing code (get_attendance and mark_attendance)
-
-# Reports endpoints
-# ... keep existing code (get_reports and get_stats)
+# ... keep existing code (attendance and reports endpoints)
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)

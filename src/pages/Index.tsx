@@ -20,18 +20,18 @@ const Index = () => {
   const [filteredData, setFilteredData] = useState<any[]>([]);
 
   const { data: sectionsData, refetch: refetchSections } = useQuery({
-    queryKey: ['sections'],
+    queryKey: ['home-sections'],
     queryFn: async () => {
-      const response = await fetch(`${API_BASE_URL}/api/sections`);
+      const response = await fetch(`${API_BASE_URL}/api/home/sections`);
       if (!response.ok) throw new Error('Failed to fetch sections');
       return response.json();
     },
   });
 
   const { data: studentsData, refetch: refetchStudents } = useQuery({
-    queryKey: ['students'],
+    queryKey: ['home-students'],
     queryFn: async () => {
-      const response = await fetch(`${API_BASE_URL}/api/students`);
+      const response = await fetch(`${API_BASE_URL}/api/home/students`);
       if (!response.ok) throw new Error('Failed to fetch students');
       return response.json();
     },
