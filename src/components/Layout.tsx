@@ -1,11 +1,12 @@
 import { Home, LayoutDashboard, Users, ClipboardCheck, FileBarChart, Menu } from "lucide-react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import Footer from "./Footer";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
+  const navigate = useNavigate();
   const [currentTime, setCurrentTime] = useState(new Date());
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -17,8 +18,13 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
     return () => clearInterval(timer);
   }, []);
 
+  const handleLogout = () => {
+    localStorage.clear();
+    navigate('/');
+  };
+
   const navItems = [
-    { icon: Home, label: "Home", path: "/" },
+    { icon: Home, label: "Home", path: "/dashboard" },
     { icon: LayoutDashboard, label: "Dashboard", path: "/dashboard" },
     { icon: Users, label: "Students", path: "/students" },
     { icon: ClipboardCheck, label: "Attendance", path: "/attendance" },
@@ -81,7 +87,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
                 </span>
               </div>
               <button
-                onClick={() => console.log("Logout clicked")}
+                onClick={handleLogout}
                 className="px-3 py-1.5 bg-red-500/10 text-red-600 text-sm font-medium rounded-md hover:bg-red-500/20 transition-colors"
               >
                 Logout
