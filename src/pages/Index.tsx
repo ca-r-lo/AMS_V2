@@ -19,7 +19,7 @@ const Index = () => {
   const [activeTab, setActiveTab] = useState<'section' | 'student'>('section');
   const [filteredData, setFilteredData] = useState<any[]>([]);
 
-  const { data: sectionsData, refetch: refetchSections } = useQuery({
+  const { data: sectionsData, refetch: refetchSections, isLoading: isLoadingSections } = useQuery({
     queryKey: ['home-sections'],
     queryFn: async () => {
       const response = await fetch(`${API_BASE_URL}/api/home/sections`);
@@ -28,7 +28,7 @@ const Index = () => {
     },
   });
 
-  const { data: studentsData, refetch: refetchStudents } = useQuery({
+  const { data: studentsData, refetch: refetchStudents, isLoading: isLoadingStudents } = useQuery({
     queryKey: ['home-students'],
     queryFn: async () => {
       const response = await fetch(`${API_BASE_URL}/api/home/students`);
@@ -45,6 +45,11 @@ const Index = () => {
   const sections = sectionsData?.sections || [];
   const students = studentsData?.students || [];
   const currentData = activeTab === 'section' ? sections : students;
+  const isLoading = activeTab === 'section' ? isLoadingSections : isLoadingStudents;
+
+  if (isLoading) {
+    return <div className="flex items-center justify-center p-8">Loading...</div>;
+  }
 
   return (
     <div className="space-y-6">
@@ -133,7 +138,7 @@ const Index = () => {
                         {`${item.firstName} ${item.middleName} ${item.lastName}`}
                       </TableCell>
                       <TableCell>{item.lrn}</TableCell>
-                      <TableCell>{item.section?.name || 'N/A'}</TableCell>
+                      <TableCell>{item.section?.name}</TableCell>
                       <TableCell>{item.age}</TableCell>
                     </>
                   )}
