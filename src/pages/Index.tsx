@@ -133,7 +133,7 @@ const Index = () => {
                         {`${item.firstName} ${item.middleName} ${item.lastName}`}
                       </TableCell>
                       <TableCell>{item.lrn}</TableCell>
-                      <TableCell>{item.section.name}</TableCell>
+                      <TableCell>{item.section?.name || 'N/A'}</TableCell>
                       <TableCell>{item.age}</TableCell>
                     </>
                   )}
