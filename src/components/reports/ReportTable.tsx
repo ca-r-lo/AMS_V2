@@ -2,18 +2,24 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { useQuery } from "@tanstack/react-query";
 import AttendanceStatus from "../AttendanceStatus";
 import { API_BASE_URL } from "@/config/api";
+import LoadingScreen from "@/components/LoadingScreen";
 
-export const ReportTable = () => {
+interface ReportTableProps {
+  selectedMonth: string;
+  selectedYear: string;
+}
+
+export const ReportTable = ({ selectedMonth, selectedYear }: ReportTableProps) => {
   const { data: attendanceData, isLoading } = useQuery({
-    queryKey: ['reports'],
+    queryKey: ['reports', selectedMonth, selectedYear],
     queryFn: async () => {
-      const response = await fetch(`${API_BASE_URL}/api/reports`);
+      const response = await fetch(`${API_BASE_URL}/api/reports?month=${selectedMonth}&year=${selectedYear}`);
       if (!response.ok) throw new Error('Failed to fetch reports');
       return response.json();
     }
   });
 
-  if (isLoading) return <div>Loading reports...</div>;
+  if (isLoading) return <LoadingScreen size="sm" />;
 
   return (
     <Table>

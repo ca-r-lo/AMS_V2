@@ -4,11 +4,12 @@ import { Clock } from "lucide-react";
 import ClassSelect from "@/components/ClassSelect";
 import { getApiUrl } from "@/config/api";
 import { useQuery } from "@tanstack/react-query";
+import LoadingScreen from "@/components/LoadingScreen";
 
 const Dashboard = () => {
   const [selectedSection, setSelectedSection] = useState("All");
   
-  const { data: dashboardData } = useQuery({
+  const { data: dashboardData, isLoading } = useQuery({
     queryKey: ['dashboard'],
     queryFn: async () => {
       const response = await fetch(getApiUrl('/api/dashboard'));
@@ -17,18 +18,11 @@ const Dashboard = () => {
     }
   });
 
-  const stats = dashboardData?.stats || [
-    { label: 'Total Students', value: '265', id: 1 },
-    { label: "Today's Attendance", value: '95', id: 2 },
-    { label: 'Absent Students', value: '170', id: 3 },
-    { label: 'Attendance Rate', value: '36%', id: 4 },
-  ];
+  if (isLoading) {
+    return <LoadingScreen />;
+  }
 
-  const attendanceLog = dashboardData?.recent_activity || [
-    { time: '17:54:40', log: 'TIME OUT', lrn: '129437110011', name: 'IMPAS, LADY JASMINE RANOLAS', section: 'TDM' },
-    { time: '17:54:35', log: 'TIME OUT', lrn: '129817130174', name: 'GUINITA, MERRY JOY CENTINO', section: 'TDM' },
-    { time: '17:51:14', log: 'TIME OUT', lrn: '129665120062', name: 'GUERRA, MARIA ODEZA BOQUIA', section: 'BNC' },
-  ];
+  const stats = dashboardData?.stats || [];
 
   return (
     <div className="space-y-6">

@@ -1,23 +1,29 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useQuery } from "@tanstack/react-query";
 import { API_BASE_URL } from "@/config/api";
+import LoadingScreen from "@/components/LoadingScreen";
 
-export const ReportStats = () => {
+interface ReportStatsProps {
+  selectedMonth: string;
+  selectedYear: string;
+}
+
+export const ReportStats = ({ selectedMonth, selectedYear }: ReportStatsProps) => {
   const { data: stats, isLoading } = useQuery({
-    queryKey: ['reportStats'],
+    queryKey: ['reportStats', selectedMonth, selectedYear],
     queryFn: async () => {
-      const response = await fetch(`${API_BASE_URL}/api/stats`);
+      const response = await fetch(`${API_BASE_URL}/api/stats?month=${selectedMonth}&year=${selectedYear}`);
       if (!response.ok) throw new Error('Failed to fetch stats');
       return response.json();
     }
   });
 
-  if (isLoading) return <div>Loading stats...</div>;
+  if (isLoading) return <LoadingScreen size="sm" />;
 
   return (
     <Card className="w-full">
       <CardHeader>
-        <CardTitle>Quick Stats</CardTitle>
+        <CardTitle>Quick Stats for {selectedMonth} {selectedYear}</CardTitle>
       </CardHeader>
       <CardContent className="grid gap-4">
         <div className="p-6 bg-green-50 rounded-lg flex flex-col justify-center min-h-[120px]">

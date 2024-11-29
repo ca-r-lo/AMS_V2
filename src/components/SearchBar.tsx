@@ -22,9 +22,10 @@ const SearchBar = ({ data, onSearch, searchFields, placeholder = "Search..." }: 
 
   useEffect(() => {
     const filtered = data.filter((item) =>
-      searchFields.some((field) =>
-        String(item[field]).toLowerCase().includes(searchQuery.toLowerCase())
-      )
+      searchFields.some((field) => {
+        const value = field.split('.').reduce((obj, key) => obj?.[key], item);
+        return String(value).toLowerCase().includes(searchQuery.toLowerCase());
+      })
     );
     onSearch(filtered);
   }, [searchQuery, data, searchFields, onSearch]);

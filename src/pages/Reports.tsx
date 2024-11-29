@@ -1,7 +1,6 @@
 import { useState } from "react";
 import ClassSelect from "@/components/ClassSelect";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import { Download, FileSpreadsheet, Printer } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -19,7 +18,6 @@ import {
 const Reports = () => {
   const { toast } = useToast();
   const [selectedSection, setSelectedSection] = useState("All");
-  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [selectedMonth, setSelectedMonth] = useState(format(new Date(), "MMMM"));
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear().toString());
 
@@ -51,20 +49,6 @@ const Reports = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <Card className="p-4">
-          <CardHeader>
-            <CardTitle className="text-lg">Select Date Range</CardTitle>
-          </CardHeader>
-          <CardContent className="p-0">
-            <Calendar
-              mode="single"
-              selected={selectedDate}
-              onSelect={(date) => date && setSelectedDate(date)}
-              className="rounded-md border"
-            />
-          </CardContent>
-        </Card>
-
         <Card>
           <CardHeader>
             <CardTitle className="text-lg">Export Options</CardTitle>
@@ -135,18 +119,18 @@ const Reports = () => {
           </CardContent>
         </Card>
 
-        <ReportStats />
+        <ReportStats selectedMonth={selectedMonth} selectedYear={selectedYear} />
       </div>
 
       <Card>
         <CardHeader>
           <CardTitle>
-            Attendance Summary for {format(selectedDate, "MMMM yyyy")}
+            Attendance Summary for {selectedMonth} {selectedYear}
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="rounded-md border">
-            <ReportTable />
+            <ReportTable selectedMonth={selectedMonth} selectedYear={selectedYear} />
           </div>
         </CardContent>
       </Card>
