@@ -29,16 +29,25 @@ const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
     }
   }, [token]);
   
+  if (!token) {
+    return <Navigate to="/login" />;
+  }
+
   if (connectionStatus !== "success") {
     return <Navigate to="/" />;
   }
   
-  return token ? children : <Navigate to="/login" />;
+  return children;
 };
 
 const AuthRoute = ({ children }: { children: React.ReactNode }) => {
+  const token = localStorage.getItem("token");
   const connectionStatus = localStorage.getItem("connection_status");
   
+  if (token) {
+    return <Navigate to="/home" />;
+  }
+
   if (connectionStatus !== "success") {
     return <Navigate to="/" />;
   }

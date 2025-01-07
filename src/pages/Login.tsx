@@ -30,11 +30,12 @@ const Login = () => {
 
       if (response.ok) {
         localStorage.setItem("token", data.token);
+        localStorage.setItem("user", JSON.stringify(data.user));
         toast({
           title: "Success",
           description: "Login successful!",
         });
-        navigate("/dashboard");
+        navigate("/home");
       } else {
         throw new Error(data.error || "Login failed");
       }
