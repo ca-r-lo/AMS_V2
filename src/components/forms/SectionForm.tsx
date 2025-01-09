@@ -11,10 +11,20 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const sectionSchema = z.object({
   name: z.string().min(1, "Section name is required"),
   gradeLevel: z.string().min(1, "Grade level is required"),
+  shift: z.enum(["morning", "afternoon"], {
+    required_error: "Please select a shift",
+  }),
 });
 
 type SectionFormProps = {
@@ -24,7 +34,7 @@ type SectionFormProps = {
 const SectionForm = ({ onSubmit }: SectionFormProps) => {
   const form = useForm({
     resolver: zodResolver(sectionSchema),
-    defaultValues: { name: '', gradeLevel: '' }
+    defaultValues: { name: '', gradeLevel: '', shift: undefined }
   });
 
   return (
@@ -52,6 +62,27 @@ const SectionForm = ({ onSubmit }: SectionFormProps) => {
               <FormControl>
                 <Input {...field} />
               </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="shift"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Shift</FormLabel>
+              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select shift" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  <SelectItem value="morning">Morning</SelectItem>
+                  <SelectItem value="afternoon">Afternoon</SelectItem>
+                </SelectContent>
+              </Select>
               <FormMessage />
             </FormItem>
           )}

@@ -7,9 +7,9 @@ CORS(app)
 
 # Mock data for sections and students
 sections_data = [
-    {"id": 1, "name": "CYGNUS", "gradeLevel": "11"},
-    {"id": 2, "name": "EIM FARADS", "gradeLevel": "12"},
-    {"id": 3, "name": "ARTS AND DESIGN", "gradeLevel": "11"},
+    {"id": 1, "name": "CYGNUS", "gradeLevel": "11", "shift": "morning"},
+    {"id": 2, "name": "EIM FARADS", "gradeLevel": "12", "shift": "afternoon"},
+    {"id": 3, "name": "ARTS AND DESIGN", "gradeLevel": "11", "shift": "morning"},
 ]
 
 students_data = [
@@ -58,7 +58,8 @@ def create_section():
     new_section = {
         "id": len(sections_data) + 1,
         "name": data["name"],
-        "gradeLevel": data["gradeLevel"]
+        "gradeLevel": data["gradeLevel"],
+        "shift": data["shift"]
     }
     sections_data.append(new_section)
     return jsonify({**new_section, "message": "Section registered successfully"}), 201
@@ -96,7 +97,16 @@ def create_student():
 def get_dashboard():
     return jsonify(dashboard_data)
 
-# ... keep existing code (attendance and reports endpoints)
+# Attendance and reports endpoints
+@app.route('/api/attendance', methods=['GET'])
+def get_attendance():
+    # Placeholder for attendance logic
+    return jsonify({"message": "Attendance data"})
+
+@app.route('/api/reports', methods=['GET'])
+def get_reports():
+    # Placeholder for reports logic
+    return jsonify({"message": "Reports data"})
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)

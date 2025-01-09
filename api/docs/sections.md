@@ -10,7 +10,8 @@ Response structure:
     {
       "id": number,
       "name": "string",
-      "gradeLevel": "string"
+      "gradeLevel": "string",
+      "shift": "morning" | "afternoon"
     }
   ]
 }
@@ -23,7 +24,8 @@ Request body:
 ```json
 {
   "name": "string",
-  "gradeLevel": "string"
+  "gradeLevel": "string",
+  "shift": "morning" | "afternoon"
 }
 ```
 
@@ -33,6 +35,7 @@ Response structure:
   "id": number,
   "name": "string",
   "gradeLevel": "string",
+  "shift": "morning" | "afternoon",
   "message": "Section registered successfully"
 }
 ```
