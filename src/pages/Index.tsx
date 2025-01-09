@@ -78,7 +78,7 @@ const Index = () => {
         <SearchBar
           data={currentData}
           onSearch={setFilteredData}
-          searchFields={activeTab === 'section' ? ['name', 'gradeLevel'] : ['firstName', 'lastName', 'lrn']}
+          searchFields={activeTab === 'section' ? ['name', 'gradeLevel', 'shift'] : ['firstName', 'lastName', 'lrn']}
           placeholder={`Search ${activeTab}s...`}
         />
         <Dialog>
@@ -113,6 +113,7 @@ const Index = () => {
                   <>
                     <TableHead>Section Name</TableHead>
                     <TableHead>Grade Level</TableHead>
+                    <TableHead>Shift</TableHead>
                   </>
                 ) : (
                   <>
@@ -131,6 +132,7 @@ const Index = () => {
                     <>
                       <TableCell className="font-medium">{item.name}</TableCell>
                       <TableCell>{item.gradeLevel}</TableCell>
+                      <TableCell className="capitalize">{item.shift}</TableCell>
                     </>
                   ) : (
                     <>
