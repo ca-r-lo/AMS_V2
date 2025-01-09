@@ -23,6 +23,7 @@ const Dashboard = () => {
   }
 
   const stats = dashboardData?.stats || [];
+  const recentActivity = dashboardData?.recent_activity || [];
 
   return (
     <div className="space-y-6">
@@ -69,7 +70,7 @@ const Dashboard = () => {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {attendanceLog.map((entry, index) => (
+              {recentActivity.map((entry, index) => (
                 <motion.tr
                   key={index}
                   initial={{ opacity: 0 }}
@@ -83,7 +84,7 @@ const Dashboard = () => {
                   <td className="table-cell">{entry.section}</td>
                   <td className="table-cell">
                     <span className="status-badge status-left">
-                      LEFT SCHOOL
+                      {entry.log}
                     </span>
                   </td>
                 </motion.tr>
