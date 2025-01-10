@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -12,12 +12,31 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Plus } from "lucide-react";
+import { Plus, Trash2 } from "lucide-react";
 import { API_BASE_URL } from "@/config/api";
+import { useToast } from "@/components/ui/use-toast";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState<'section' | 'student'>('section');
   const [filteredData, setFilteredData] = useState<any[]>([]);
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  
+  // Get user role from localStorage
+  const userStr = localStorage.getItem("user");
+  const user = userStr ? JSON.parse(userStr) : null;
+  const isAdmin = user?.role === "admin";
 
   const { data: sectionsData, refetch: refetchSections, isLoading: isLoadingSections } = useQuery({
     queryKey: ['home-sections'],
@@ -34,6 +53,60 @@ const Index = () => {
       const response = await fetch(`${API_BASE_URL}/api/home/students`);
       if (!response.ok) throw new Error('Failed to fetch students');
       return response.json();
+    },
+  });
+
+  const deleteSection = useMutation({
+    mutationFn: async (sectionId: number) => {
+      const response = await fetch(`${API_BASE_URL}/api/sections/${sectionId}`, {
+        method: 'DELETE',
+      });
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to delete section');
+      }
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Success",
+        description: "Section deleted successfully",
+      });
+      queryClient.invalidateQueries({ queryKey: ['home-sections'] });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const deleteStudent = useMutation({
+    mutationFn: async (studentId: number) => {
+      const response = await fetch(`${API_BASE_URL}/api/students/${studentId}`, {
+        method: 'DELETE',
+      });
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to delete student');
+      }
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Success",
+        description: "Student deleted successfully",
+      });
+      queryClient.invalidateQueries({ queryKey: ['home-students'] });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
     },
   });
 
@@ -81,24 +154,26 @@ const Index = () => {
           searchFields={activeTab === 'section' ? ['name', 'gradeLevel', 'shift'] : ['firstName', 'lastName', 'lrn']}
           placeholder={`Search ${activeTab}s...`}
         />
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button className="flex items-center gap-2">
-              <Plus className="w-4 h-4" />
-              Add New {activeTab === 'section' ? 'Section' : 'Student'}
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Register New {activeTab === 'section' ? 'Section' : 'Student'}</DialogTitle>
-            </DialogHeader>
-            <RegisterForm 
-              type={activeTab} 
-              sections={sections}
-              onSuccess={handleRefresh}
-            />
-          </DialogContent>
-        </Dialog>
+        {isAdmin && (
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button className="flex items-center gap-2">
+                <Plus className="w-4 h-4" />
+                Add New {activeTab === 'section' ? 'Section' : 'Student'}
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Register New {activeTab === 'section' ? 'Section' : 'Student'}</DialogTitle>
+              </DialogHeader>
+              <RegisterForm 
+                type={activeTab} 
+                sections={sections}
+                onSuccess={handleRefresh}
+              />
+            </DialogContent>
+          </Dialog>
+        )}
       </div>
 
       <Card>
@@ -114,6 +189,7 @@ const Index = () => {
                     <TableHead>Section Name</TableHead>
                     <TableHead>Grade Level</TableHead>
                     <TableHead>Shift</TableHead>
+                    {isAdmin && <TableHead>Actions</TableHead>}
                   </>
                 ) : (
                   <>
@@ -121,6 +197,7 @@ const Index = () => {
                     <TableHead>LRN</TableHead>
                     <TableHead>Section</TableHead>
                     <TableHead>Age</TableHead>
+                    {isAdmin && <TableHead>Actions</TableHead>}
                   </>
                 )}
               </TableRow>
@@ -133,6 +210,34 @@ const Index = () => {
                       <TableCell className="font-medium">{item.name}</TableCell>
                       <TableCell>{item.gradeLevel}</TableCell>
                       <TableCell className="capitalize">{item.shift}</TableCell>
+                      {isAdmin && (
+                        <TableCell>
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button variant="ghost" size="icon">
+                                <Trash2 className="h-4 w-4 text-red-500" />
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Delete Section</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  Are you sure you want to delete this section? This action cannot be undone.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction
+                                  onClick={() => deleteSection.mutate(item.id)}
+                                  className="bg-red-500 hover:bg-red-600"
+                                >
+                                  Delete
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        </TableCell>
+                      )}
                     </>
                   ) : (
                     <>
@@ -142,6 +247,34 @@ const Index = () => {
                       <TableCell>{item.lrn}</TableCell>
                       <TableCell>{item.section?.name}</TableCell>
                       <TableCell>{item.age}</TableCell>
+                      {isAdmin && (
+                        <TableCell>
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button variant="ghost" size="icon">
+                                <Trash2 className="h-4 w-4 text-red-500" />
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Delete Student</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  Are you sure you want to delete this student? This action cannot be undone.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction
+                                  onClick={() => deleteStudent.mutate(item.id)}
+                                  className="bg-red-500 hover:bg-red-600"
+                                >
+                                  Delete
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        </TableCell>
+                      )}
                     </>
                   )}
                 </TableRow>

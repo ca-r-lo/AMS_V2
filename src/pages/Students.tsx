@@ -1,10 +1,23 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import ClassSelect from "@/components/ClassSelect";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import SearchBar from "@/components/SearchBar";
+import { Trash2 } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import {
   Pagination,
   PaginationContent,
@@ -13,6 +26,7 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import { useToast } from "@/components/ui/use-toast";
 import { API_BASE_URL } from "@/config/api";
 
 const ITEMS_PER_PAGE = 25;
@@ -21,6 +35,13 @@ const Students = () => {
   const [selectedSection, setSelectedSection] = useState("All");
   const [currentPage, setCurrentPage] = useState(1);
   const [filteredStudents, setFilteredStudents] = useState<any[]>([]);
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  // Get user role from localStorage
+  const userStr = localStorage.getItem("user");
+  const user = userStr ? JSON.parse(userStr) : null;
+  const isAdmin = user?.role === "admin";
 
   const { data: studentsData, isLoading } = useQuery({
     queryKey: ['students', selectedSection],
@@ -31,7 +52,32 @@ const Students = () => {
     }
   });
 
-  const students = studentsData?.students || [];
+  const deleteStudent = useMutation({
+    mutationFn: async (studentId: number) => {
+      const response = await fetch(`${API_BASE_URL}/api/students/${studentId}`, {
+        method: 'DELETE',
+      });
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to delete student');
+      }
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Success",
+        description: "Student deleted successfully",
+      });
+      queryClient.invalidateQueries({ queryKey: ['students'] });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
 
   const getStatusBadge = (status: string) => {
     const statusConfig = {
@@ -49,6 +95,7 @@ const Students = () => {
     setCurrentPage(1);
   };
 
+  const students = studentsData?.students || [];
   const displayedStudents = selectedSection === "All" 
     ? (filteredStudents.length > 0 ? filteredStudents : students)
     : (filteredStudents.length > 0 ? filteredStudents : students).filter(student => student.section.name === selectedSection);
@@ -134,6 +181,7 @@ const Students = () => {
                 <TableHead>Status</TableHead>
                 <TableHead>Time In</TableHead>
                 <TableHead>Time Out</TableHead>
+                {isAdmin && <TableHead>Actions</TableHead>}
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -146,6 +194,34 @@ const Students = () => {
                   <TableCell>{getStatusBadge(student.status)}</TableCell>
                   <TableCell>{student.timeIn || "-"}</TableCell>
                   <TableCell>{student.timeOut || "-"}</TableCell>
+                  {isAdmin && (
+                    <TableCell>
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button variant="ghost" size="icon">
+                            <Trash2 className="h-4 w-4 text-red-500" />
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Delete Student</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              Are you sure you want to delete this student? This action cannot be undone.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction
+                              onClick={() => deleteStudent.mutate(student.id)}
+                              className="bg-red-500 hover:bg-red-600"
+                            >
+                              Delete
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    </TableCell>
+                  )}
                 </TableRow>
               ))}
             </TableBody>

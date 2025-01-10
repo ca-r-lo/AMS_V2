@@ -64,6 +64,20 @@ def create_section():
     sections_data.append(new_section)
     return jsonify({**new_section, "message": "Section registered successfully"}), 201
 
+@app.route('/api/sections/<int:section_id>', methods=['DELETE'])
+def delete_section(section_id):
+    section = next((s for s in sections_data if s['id'] == section_id), None)
+    if not section:
+        return jsonify({"error": "Section not found"}), 404
+    
+    # Check if there are students in this section
+    students_in_section = any(s['section']['id'] == section_id for s in students_data)
+    if students_in_section:
+        return jsonify({"error": "Cannot delete section with enrolled students"}), 400
+    
+    sections_data.remove(section)
+    return jsonify({"message": "Section deleted successfully"}), 200
+
 # Main students endpoints
 @app.route('/api/students', methods=['GET'])
 def get_students():
@@ -92,21 +106,19 @@ def create_student():
     students_data.append(new_student)
     return jsonify({**new_student, "message": "Student registered successfully"}), 201
 
+@app.route('/api/students/<int:student_id>', methods=['DELETE'])
+def delete_student(student_id):
+    student = next((s for s in students_data if s['id'] == student_id), None)
+    if not student:
+        return jsonify({"error": "Student not found"}), 404
+    
+    students_data.remove(student)
+    return jsonify({"message": "Student deleted successfully"}), 200
+
 # Dashboard endpoints
 @app.route('/api/dashboard', methods=['GET'])
 def get_dashboard():
     return jsonify(dashboard_data)
-
-# Attendance and reports endpoints
-@app.route('/api/attendance', methods=['GET'])
-def get_attendance():
-    # Placeholder for attendance logic
-    return jsonify({"message": "Attendance data"})
-
-@app.route('/api/reports', methods=['GET'])
-def get_reports():
-    # Placeholder for reports logic
-    return jsonify({"message": "Reports data"})
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
