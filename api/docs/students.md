@@ -27,7 +27,7 @@ Response structure:
 ```
 
 ## POST /api/students
-Register a new student.
+Register a new student. Requires admin role.
 
 Request body:
 ```json
@@ -57,3 +57,16 @@ Response structure:
   "message": "Student registered successfully"
 }
 ```
+
+## DELETE /api/students/:id
+Delete a student. Requires admin role.
+
+Response structure:
+```json
+{
+  "message": "Student deleted successfully"
+}
+```
+
+Error responses:
+- 404: Student not found

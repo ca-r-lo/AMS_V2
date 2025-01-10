@@ -18,7 +18,7 @@ Response structure:
 ```
 
 ## POST /api/sections
-Register a new section.
+Register a new section. Requires admin role.
 
 Request body:
 ```json
@@ -39,3 +39,17 @@ Response structure:
   "message": "Section registered successfully"
 }
 ```
+
+## DELETE /api/sections/:id
+Delete a section. Requires admin role.
+
+Response structure:
+```json
+{
+  "message": "Section deleted successfully"
+}
+```
+
+Error responses:
+- 400: Cannot delete section with enrolled students
+- 404: Section not found

@@ -1,9 +1,29 @@
-# Authentication API
+# Authentication API Documentation
 
-## POST /api/auth/login
-Authenticates a user and returns a JWT token.
+## Role-Based Access Control
 
-Request body:
+The API implements role-based access control with two main roles:
+- **Admin**: Full access to all endpoints, including creation and deletion of sections and students
+- **User**: Read-only access to sections and students data
+
+### Protected Endpoints
+The following endpoints require admin role:
+- POST /api/sections
+- DELETE /api/sections/:id
+- POST /api/students
+- DELETE /api/students/:id
+
+Error response for unauthorized access:
+```json
+{
+  "error": "Unauthorized: Admin role required"
+}
+```
+
+## Login
+Authenticate a user and receive their role.
+
+Request:
 ```json
 {
   "username": "string",
@@ -18,31 +38,7 @@ Response:
   "user": {
     "id": "number",
     "username": "string",
-    "role": "string"
-  }
-}
-```
-
-## POST /api/auth/register
-Creates a new user account.
-
-Request body:
-```json
-{
-  "username": "string",
-  "password": "string",
-  "email": "string"
-}
-```
-
-Response:
-```json
-{
-  "message": "string",
-  "user": {
-    "id": "number",
-    "username": "string",
-    "email": "string"
+    "role": "admin" | "user"
   }
 }
 ```
